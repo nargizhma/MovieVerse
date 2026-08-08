@@ -1,0 +1,129 @@
+# =========================
+# .NET / ASP.NET Core
+# =========================
+
+bin/
+obj/
+
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# =========================
+# Rider / JetBrains
+# =========================
+
+.idea/
+*.sln.iml
+
+# =========================
+# Visual Studio
+# =========================
+
+.vs/
+
+# =========================
+# Local configuration
+# =========================
+
+appsettings.Local.json
+appsettings.*.local.json
+
+.env
+.env.*
+!.env.example
+
+# If you later store secrets here
+secrets.json
+
+# =========================
+# Logs
+# =========================
+
+logs/
+*.log
+
+# =========================
+# Database / local files
+# =========================
+
+*.db
+*.db-shm
+*.db-wal
+
+# =========================
+# Frontend / JavaScript
+# =========================
+
+node_modules/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+dist/
+.cache/
+
+# =========================
+# macOS
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# =========================
+# Windows
+# =========================
+
+Thumbs.db
+Desktop.ini
+
+# =========================
+# Temporary files
+# =========================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# =========================
+# Test / coverage output
+# =========================
+
+TestResults/
+coverage/
+coverage.xml
+*.coverage
+*.coveragexml
+
+# =========================
+# NuGet
+# =========================
+
+*.nupkg
+*.snupkg
+
+# Packages should generally be restored
+packages/
+
+# =========================
+# Publish output
+# =========================
+
+publish/

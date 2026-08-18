@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+      <UserSecretsId>774cad2c-9139-4d03-b132-1204c4e29675</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="16.2.0" />

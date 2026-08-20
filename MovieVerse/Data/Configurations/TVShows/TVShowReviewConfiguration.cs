@@ -23,5 +23,7 @@ public class TVShowReviewConfiguration : IEntityTypeConfiguration<TVShowReview>
         builder
             .HasIndex(x => new { x.TVShowId, x.UserId })
             .IsUnique();
+        builder.Property(x => x.Rating)
+            .HasPrecision(3, 1);
     }
 }

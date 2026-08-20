@@ -4,7 +4,7 @@ namespace MovieVerse.Models;
 
 public class EpisodeReview : BaseEntity
 {
-    public int Rating { get; set; }
+    public decimal Rating { get; set; }
 
     public string? Content { get; set; }
 

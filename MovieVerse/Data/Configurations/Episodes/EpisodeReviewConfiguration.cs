@@ -23,5 +23,7 @@ public class EpisodeReviewConfiguration : IEntityTypeConfiguration<EpisodeReview
         builder
             .HasIndex(x => new { x.EpisodeId, x.UserId })
             .IsUnique();
+        builder.Property(x => x.Rating)
+            .HasPrecision(3, 1);
     }
 }

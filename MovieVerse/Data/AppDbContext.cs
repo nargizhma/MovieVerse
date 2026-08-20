@@ -44,7 +44,7 @@ public class AppDbContext: IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     public DbSet<MovieGenre> MovieGenres { get; set; }
 
     // Movie reviews
-    public DbSet<Review> Reviews { get; set; }
+    public DbSet<MovieReview> MovieReviews { get; set; }
 
     // TV Shows
     public DbSet<TVShow> TVShows { get; set; }

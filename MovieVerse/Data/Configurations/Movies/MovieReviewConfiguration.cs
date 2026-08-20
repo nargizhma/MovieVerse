@@ -4,9 +4,9 @@ using MovieVerse.Models;
 
 namespace MovieVerse.Data.Configurations.Movies;
 
-public class ReviewConfiguration : IEntityTypeConfiguration<Review>
+public class MovieReviewConfiguration : IEntityTypeConfiguration<MovieReview>
 {
-    public void Configure(EntityTypeBuilder<Review> builder)
+    public void Configure(EntityTypeBuilder<MovieReview> builder)
     {
         builder
             .HasOne(x => x.Movie)
@@ -23,5 +23,7 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
         builder
             .HasIndex(x => new { x.MovieId, x.UserId })
             .IsUnique();
+        builder.Property(x => x.Rating)
+            .HasPrecision(3, 1);
     }
 }

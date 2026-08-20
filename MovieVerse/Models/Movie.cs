@@ -22,6 +22,6 @@ public class Movie : BaseEntity
     public List<MovieDirector> MovieDirectors { get; set; } = [];
     public List<MovieGenre> MovieGenres { get; set; } = [];
     public List<MovieActor> MovieActors { get; set; } = [];
-    public List<Review> Reviews { get; set; } = [];
+    public List<MovieReview> Reviews { get; set; } = [];
     public List<MovieWriter> MovieWriters { get; set; } = [];
 }

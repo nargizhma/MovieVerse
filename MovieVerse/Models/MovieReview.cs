@@ -2,9 +2,9 @@
 
 namespace MovieVerse.Models
 {
-    public class Review : BaseEntity
+    public class MovieReview : BaseEntity
     {
-        public int Rating { get; set; }
+        public decimal Rating { get; set; }
 
         public string? Content { get; set; }
 

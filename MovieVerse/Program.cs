@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MovieVerse.Data;
+using MovieVerse.Data.Seed;
 using MovieVerse.Models;
 using MovieVerse.Profiles;
 using MovieVerse.Services;
@@ -72,6 +73,10 @@ builder.Services
 
 builder.Services.AddAuthorization();
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

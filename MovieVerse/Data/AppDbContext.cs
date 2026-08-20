@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using MovieVerse.Models.Common;
 
 namespace MovieVerse.Data;
@@ -15,7 +14,12 @@ public class AppDbContext: IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
         : base(options)
     {
     }
+    // Users
+    public DbSet<UserProfile> UserProfiles { get; set; }
 
+    // User activity
+    public DbSet<WatchlistItem> WatchlistItems { get; set; }
+    public DbSet<WatchHistoryItem> WatchHistoryItems { get; set; }
     // Movies
     public DbSet<Movie> Movies { get; set; }
     public DbSet<MovieDetail> MovieDetails { get; set; }
@@ -68,6 +72,7 @@ public class AppDbContext: IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
         // -------------------------
         // GUID generation
@@ -208,7 +213,19 @@ public class AppDbContext: IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
 
         modelBuilder.Entity<Review>()
             .HasOne(x => x.User)
-            .WithMany()
+            .WithMany(x => x.MovieReviews)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TVShowReview>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.TVShowReviews)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<EpisodeReview>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.EpisodeReviews)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -302,11 +319,6 @@ public class AppDbContext: IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
             .HasForeignKey(x => x.TVShowId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<TVShowReview>()
-            .HasOne(x => x.User)
-            .WithMany()
-            .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<TVShowReview>()
             .HasIndex(x => new { x.TVShowId, x.UserId })
@@ -387,12 +399,6 @@ public class AppDbContext: IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<EpisodeReview>()
-            .HasOne(x => x.User)
-            .WithMany()
-            .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<EpisodeReview>()
             .HasIndex(x => new { x.EpisodeId, x.UserId })
             .IsUnique();
         // decimal props
@@ -415,5 +421,6 @@ public class AppDbContext: IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
         modelBuilder.Entity<MovieDetail>()
             .Property(x => x.GrossWorldwide)
             .HasPrecision(18, 2);
+
     }
 }

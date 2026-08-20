@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MovieVerse.Models;
 
-namespace MovieVerse.Data.Configurations;
+namespace MovieVerse.Data.Configurations.Users;
 
 public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 {

@@ -169,7 +169,7 @@ namespace MovieVerse.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Actors");
+                    b.ToTable("Actors", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.ActorDetail", b =>
@@ -230,7 +230,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("ActorId")
                         .IsUnique();
 
-                    b.ToTable("ActorDetails");
+                    b.ToTable("ActorDetails", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.AppUser", b =>
@@ -315,7 +315,7 @@ namespace MovieVerse.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Directors");
+                    b.ToTable("Directors", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.DirectorDetail", b =>
@@ -358,7 +358,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("DirectorId")
                         .IsUnique();
 
-                    b.ToTable("DirectorDetails");
+                    b.ToTable("DirectorDetails", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.Episode", b =>
@@ -395,7 +395,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("SeasonId", "EpisodeNumber")
                         .IsUnique();
 
-                    b.ToTable("Episodes");
+                    b.ToTable("Episodes", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.EpisodeActor", b =>
@@ -421,7 +421,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("EpisodeId", "ActorId")
                         .IsUnique();
 
-                    b.ToTable("EpisodeActors");
+                    b.ToTable("EpisodeActors", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.EpisodeDirector", b =>
@@ -444,7 +444,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("EpisodeId", "DirectorId")
                         .IsUnique();
 
-                    b.ToTable("EpisodeDirectors");
+                    b.ToTable("EpisodeDirectors", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.EpisodeReview", b =>
@@ -474,7 +474,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("EpisodeId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("EpisodeReviews");
+                    b.ToTable("EpisodeReviews", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.EpisodeWriter", b =>
@@ -497,7 +497,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("EpisodeId", "WriterId")
                         .IsUnique();
 
-                    b.ToTable("EpisodeWriters");
+                    b.ToTable("EpisodeWriters", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.Genre", b =>
@@ -513,7 +513,7 @@ namespace MovieVerse.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.Movie", b =>
@@ -548,7 +548,7 @@ namespace MovieVerse.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies");
+                    b.ToTable("Movies", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.MovieActor", b =>
@@ -577,7 +577,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("MovieId", "ActorId")
                         .IsUnique();
 
-                    b.ToTable("MovieActors");
+                    b.ToTable("MovieActors", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.MovieDetail", b =>
@@ -630,7 +630,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("MovieId")
                         .IsUnique();
 
-                    b.ToTable("MovieDetails");
+                    b.ToTable("MovieDetails", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.MovieDirector", b =>
@@ -653,7 +653,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("MovieId", "DirectorId")
                         .IsUnique();
 
-                    b.ToTable("MovieDirectors");
+                    b.ToTable("MovieDirectors", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.MovieGenre", b =>
@@ -676,7 +676,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("MovieId", "GenreId")
                         .IsUnique();
 
-                    b.ToTable("MovieGenres");
+                    b.ToTable("MovieGenres", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.MovieReview", b =>
@@ -706,7 +706,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("MovieId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("MovieReviews");
+                    b.ToTable("MovieReviews", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.MovieWriter", b =>
@@ -729,7 +729,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("MovieId", "WriterId")
                         .IsUnique();
 
-                    b.ToTable("MovieWriters");
+                    b.ToTable("MovieWriters", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.Season", b =>
@@ -750,7 +750,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("TVShowId", "SeasonNumber")
                         .IsUnique();
 
-                    b.ToTable("Seasons");
+                    b.ToTable("Seasons", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.TVShow", b =>
@@ -791,7 +791,7 @@ namespace MovieVerse.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TVShows");
+                    b.ToTable("TVShows", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.TVShowActor", b =>
@@ -817,7 +817,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("TVShowId", "ActorId")
                         .IsUnique();
 
-                    b.ToTable("TVShowActors");
+                    b.ToTable("TVShowActors", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.TVShowDetail", b =>
@@ -853,7 +853,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("TVShowId")
                         .IsUnique();
 
-                    b.ToTable("TVShowDetails");
+                    b.ToTable("TVShowDetails", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.TVShowGenre", b =>
@@ -876,7 +876,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("TVShowId", "GenreId")
                         .IsUnique();
 
-                    b.ToTable("TVShowGenres");
+                    b.ToTable("TVShowGenres", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.TVShowReview", b =>
@@ -906,7 +906,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("TVShowId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("TVShowReviews");
+                    b.ToTable("TVShowReviews", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.UserProfile", b =>
@@ -928,7 +928,7 @@ namespace MovieVerse.Data.Migrations
 
                     b.HasKey("AppUserId");
 
-                    b.ToTable("UserProfiles");
+                    b.ToTable("UserProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.WatchHistoryItem", b =>
@@ -961,7 +961,7 @@ namespace MovieVerse.Data.Migrations
                         .IsUnique()
                         .HasFilter("[TVShowId] IS NOT NULL");
 
-                    b.ToTable("WatchHistoryItems", t =>
+                    b.ToTable("WatchHistoryItems", null, t =>
                         {
                             t.HasCheckConstraint("CK_WatchHistoryItem_Content", "([MovieId] IS NOT NULL AND [TVShowId] IS NULL) OR ([MovieId] IS NULL AND [TVShowId] IS NOT NULL)");
                         });
@@ -997,7 +997,7 @@ namespace MovieVerse.Data.Migrations
                         .IsUnique()
                         .HasFilter("[TVShowId] IS NOT NULL");
 
-                    b.ToTable("WatchlistItems", t =>
+                    b.ToTable("WatchlistItems", null, t =>
                         {
                             t.HasCheckConstraint("CK_WatchlistItem_Content", "([MovieId] IS NOT NULL AND [TVShowId] IS NULL) OR ([MovieId] IS NULL AND [TVShowId] IS NOT NULL)");
                         });
@@ -1019,7 +1019,7 @@ namespace MovieVerse.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Writers");
+                    b.ToTable("Writers", (string)null);
                 });
 
             modelBuilder.Entity("MovieVerse.Models.WriterDetail", b =>
@@ -1086,7 +1086,7 @@ namespace MovieVerse.Data.Migrations
                     b.HasIndex("WriterId")
                         .IsUnique();
 
-                    b.ToTable("WriterDetails");
+                    b.ToTable("WriterDetails", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

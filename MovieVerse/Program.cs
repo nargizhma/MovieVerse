@@ -6,6 +6,8 @@ using MovieVerse.Data;
 using MovieVerse.Data.Seed;
 using MovieVerse.Models;
 using MovieVerse.Profiles;
+using MovieVerse.Repositories;
+using MovieVerse.Repositories.Interfaces;
 using MovieVerse.Services;
 using MovieVerse.Services.Interfaces;
 using MovieVerse.Settings;
@@ -30,6 +32,10 @@ builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection(JwtSettings.SectionName));
 
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped(
+    typeof(IGenericRepository<>),
+    typeof(GenericRepository<>));
+builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddAutoMapper(
     cfg => { },
     typeof(MapperProfile));
@@ -84,6 +90,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

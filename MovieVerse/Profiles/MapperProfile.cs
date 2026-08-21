@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MovieVerse.Dtos.Auth;
+using MovieVerse.Dtos.Genres;
 using MovieVerse.Models;
 
 namespace MovieVerse.Profiles
@@ -15,6 +16,9 @@ namespace MovieVerse.Profiles
                     dest => dest.AppUserId,
                     opt => opt.Ignore()
                 );
+            CreateMap<GenreCreateDto, Genre>();
+            CreateMap<GenreUpdateDto, Genre>();
+            CreateMap<Genre, GenreReturnDto>();
         }
     }
 }

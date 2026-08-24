@@ -34,4 +34,19 @@ public static class FileManager
     {
         return file.Length <= maxMb * 1024 * 1024;
     }
+
+    public static void DeleteFile(
+        string? fileName,
+        string folderPath)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+            return;
+
+        var path = Path.Combine(
+            folderPath,
+            fileName);
+
+        if (File.Exists(path))
+            File.Delete(path);
+    }
 }

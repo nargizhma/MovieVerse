@@ -30,6 +30,16 @@ public class ActorCreateDtoValidator
         RuleFor(x => x.BirthDate)
             .LessThan(DateTime.UtcNow)
             .WithMessage("Birth date cannot be in the future.")
-            .When(x => x.BirthDate.HasValue);
+            .When(x => x.BirthDate.HasValue); 
+        RuleFor(x => x.DeathDate)
+            .LessThanOrEqualTo(DateTime.UtcNow)
+            .WithMessage("Death date cannot be in the future.")
+            .When(x => x.DeathDate.HasValue);
+        RuleFor(x => x.DeathDate)
+            .GreaterThan(x => x.BirthDate)
+            .WithMessage("Death date must be after birth date.")
+            .When(x =>
+                x.DeathDate.HasValue &&
+                x.BirthDate.HasValue);
     }
 }

@@ -8,8 +8,10 @@ namespace MovieVerse.Models
         public string? Biography { get; set; }
 
         public DateTime? BirthDate { get; set; }
-
         public string? BirthPlace { get; set; }
+        public DateTime? DeathDate { get; set; }
+        public string? DeathPlace { get; set; }
+
 
         public decimal? HeightInMeters { get; set; }
 

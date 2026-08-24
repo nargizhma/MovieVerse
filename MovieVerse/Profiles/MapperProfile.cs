@@ -59,6 +59,18 @@ public class MapperProfile : Profile
         // ACTOR RETURN
         CreateMap<Actor, ActorReturnDto>()
             .ForMember(
+                dest => dest.DeathDate,
+                opt => opt.MapFrom(src =>
+                    src.ActorDetail != null
+                        ? src.ActorDetail.DeathDate
+                        : null))
+            .ForMember(
+                dest => dest.DeathPlace,
+                opt => opt.MapFrom(src =>
+                    src.ActorDetail != null
+                        ? src.ActorDetail.DeathPlace
+                        : null))
+            .ForMember(
                 dest => dest.ProfileImageUrl,
                 opt => opt.MapFrom<ActorImageUrlResolver>())
             .ForMember(

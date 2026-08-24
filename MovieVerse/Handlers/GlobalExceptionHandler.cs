@@ -14,19 +14,24 @@ public class GlobalExceptionHandler : IExceptionHandler
         var statusCode = exception switch
         {
             AlreadyExistsException => StatusCodes.Status409Conflict,
+            BadRequestException => StatusCodes.Status400BadRequest,
+            UnauthorizedException => StatusCodes.Status401Unauthorized,
             _ => StatusCodes.Status500InternalServerError
         };
-
+        var title = exception switch
+        {
+            AlreadyExistsException => "Conflict",
+            BadRequestException => "Bad Request",
+            UnauthorizedException => "Unauthorized",
+            _ => "Internal Server Error"
+        };
         var problemDetails = new ProblemDetails
         {
             Status = statusCode,
-            Title = statusCode == 409
-                ? "Conflict"
-                : "Internal Server Error",
-
+            Title = title,
             Detail = statusCode == 500
-                ? "Something went wrong."
-                : exception.Message
+        ? "Something went wrong."
+        : exception.Message
         };
 
         httpContext.Response.StatusCode = statusCode;

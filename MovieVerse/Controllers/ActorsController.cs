@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MovieVerse.Dtos.Actors;
+using MovieVerse.Exceptions;
 using MovieVerse.Services.Interfaces;
 
 namespace MovieVerse.Controllers;
@@ -8,7 +10,9 @@ namespace MovieVerse.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class ActorsController(
-    IActorService actorService)
+    IActorService actorService,
+    IValidator<ActorCreateDto> createDtoValidator,
+    IValidator<ActorUpdateDto> updateDtoValidator)
     : ControllerBase
 {
     [HttpGet]
@@ -32,8 +36,21 @@ public class ActorsController(
     [HttpPost]
     [Authorize(Roles = "Admin,SuperAdmin")]
     public async Task<IActionResult> Create(
-         [FromForm] ActorCreateDto dto)
+        [FromForm] ActorCreateDto dto)
     {
+        var validationResult =
+            await createDtoValidator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = string.Join(
+                " ",
+                validationResult.Errors
+                    .Select(x => x.ErrorMessage));
+
+            throw new BadRequestException(errors);
+        }
+
         await actorService.CreateAsync(dto);
 
         return StatusCode(
@@ -44,8 +61,21 @@ public class ActorsController(
     [Authorize(Roles = "Admin,SuperAdmin")]
     public async Task<IActionResult> Update(
         Guid id,
-         [FromForm] ActorUpdateDto dto)
+        [FromForm] ActorUpdateDto dto)
     {
+        var validationResult =
+            await updateDtoValidator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = string.Join(
+                " ",
+                validationResult.Errors
+                    .Select(x => x.ErrorMessage));
+
+            throw new BadRequestException(errors);
+        }
+
         await actorService.UpdateAsync(id, dto);
 
         return NoContent();

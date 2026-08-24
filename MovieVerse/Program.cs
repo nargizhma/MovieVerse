@@ -55,6 +55,8 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IActorService, ActorService>();
+builder.Services.AddScoped<IDirectorService, DirectorService>();
+builder.Services.AddScoped<IWriterService, WriterService>();
 builder.Services.AddScoped(
     typeof(IGenericRepository<>),
     typeof(GenericRepository<>));

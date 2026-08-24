@@ -3,6 +3,7 @@ using MovieVerse.Dtos.Actors;
 using MovieVerse.Dtos.Auth;
 using MovieVerse.Dtos.Directors;
 using MovieVerse.Dtos.Genres;
+using MovieVerse.Dtos.Writers;
 using MovieVerse.Models;
 using MovieVerse.Profiles.Resolvers;
 
@@ -248,5 +249,95 @@ public class MapperProfile : Profile
             .ForMember(
                 dest => dest.Trademark,
                 opt => opt.MapFrom(src => src.DirectorDetail!.Trademark));
+
+        // WRITER CREATE
+        CreateMap<WriterCreateDto, Writer>()
+            .ForMember(
+                dest => dest.ProfileImageUrl,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.WriterDetail,
+                opt => opt.MapFrom(src => src));
+
+        CreateMap<WriterCreateDto, WriterDetail>()
+            .ForMember(
+                dest => dest.WriterId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Writer,
+                opt => opt.Ignore());
+
+
+        // WRITER UPDATE
+        CreateMap<WriterUpdateDto, Writer>()
+            .ForMember(
+                dest => dest.ProfileImageUrl,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.WriterDetail,
+                opt => opt.Ignore());
+
+        CreateMap<WriterUpdateDto, WriterDetail>()
+            .ForMember(
+                dest => dest.WriterId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Writer,
+                opt => opt.Ignore());
+
+
+        // WRITER RETURN
+        CreateMap<Writer, WriterReturnDto>()
+            .ForMember(
+                dest => dest.ProfileImageUrl,
+                opt => opt.MapFrom<WriterImageUrlResolver>())
+            .ForMember(
+                dest => dest.Biography,
+                opt => opt.MapFrom(src => src.WriterDetail!.Biography))
+            .ForMember(
+                dest => dest.BirthDate,
+                opt => opt.MapFrom(src => src.WriterDetail!.BirthDate))
+            .ForMember(
+                dest => dest.BirthPlace,
+                opt => opt.MapFrom(src => src.WriterDetail!.BirthPlace))
+            .ForMember(
+                dest => dest.DeathDate,
+                opt => opt.MapFrom(src => src.WriterDetail!.DeathDate))
+            .ForMember(
+                dest => dest.DeathPlace,
+                opt => opt.MapFrom(src => src.WriterDetail!.DeathPlace))
+            .ForMember(
+                dest => dest.HeightInMeters,
+                opt => opt.MapFrom(src => src.WriterDetail!.HeightInMeters))
+            .ForMember(
+                dest => dest.AlternativeName,
+                opt => opt.MapFrom(src => src.WriterDetail!.AlternativeName))
+            .ForMember(
+                dest => dest.Nickname,
+                opt => opt.MapFrom(src => src.WriterDetail!.Nickname))
+            .ForMember(
+                dest => dest.Spouse,
+                opt => opt.MapFrom(src => src.WriterDetail!.Spouse))
+            .ForMember(
+                dest => dest.Children,
+                opt => opt.MapFrom(src => src.WriterDetail!.Children))
+            .ForMember(
+                dest => dest.Parents,
+                opt => opt.MapFrom(src => src.WriterDetail!.Parents))
+            .ForMember(
+                dest => dest.Relatives,
+                opt => opt.MapFrom(src => src.WriterDetail!.Relatives))
+            .ForMember(
+                dest => dest.OtherWorks,
+                opt => opt.MapFrom(src => src.WriterDetail!.OtherWorks))
+            .ForMember(
+                dest => dest.Trivia,
+                opt => opt.MapFrom(src => src.WriterDetail!.Trivia))
+            .ForMember(
+                dest => dest.Quote,
+                opt => opt.MapFrom(src => src.WriterDetail!.Quote))
+            .ForMember(
+                dest => dest.Trademark,
+                opt => opt.MapFrom(src => src.WriterDetail!.Trademark));
     }
 }

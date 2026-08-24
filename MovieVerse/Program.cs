@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using MovieVerse.Data;
 using MovieVerse.Data.Seed;
+using MovieVerse.Handlers;
 using MovieVerse.Models;
 using MovieVerse.Profiles;
 using MovieVerse.Repositories;
@@ -95,7 +96,10 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 var app = builder.Build();
+app.UseExceptionHandler();
 using (var scope = app.Services.CreateScope())
 {
     await IdentitySeeder.SeedAsync(scope.ServiceProvider);

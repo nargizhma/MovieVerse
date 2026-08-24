@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MovieVerse.Dtos.Genres;
+using MovieVerse.Exceptions;
 using MovieVerse.Models;
 using MovieVerse.Repositories.Interfaces;
 using MovieVerse.Services.Interfaces;
@@ -30,7 +32,16 @@ public class GenreService(
 
     public async Task CreateAsync(GenreCreateDto dto)
     {
+        var name = dto.Name.Trim();
+
+        var exists = await repository.Query()
+            .AnyAsync(x => x.Name.ToLower() == name.ToLower());
+
+        if (exists)
+            throw new AlreadyExistsException("Genre with this name already exists.");
+
         var genre = mapper.Map<Genre>(dto);
+        genre.Name = name;
 
         await repository.AddAsync(genre);
         await repository.SaveChangesAsync();

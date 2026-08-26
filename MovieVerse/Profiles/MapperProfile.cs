@@ -41,9 +41,12 @@ public class MapperProfile : Profile
                 opt => opt.MapFrom(src => src));
 
         CreateMap<ActorCreateDto, ActorDetail>()
-            .ForMember(
-                dest => dest.ActorId,
-                opt => opt.Ignore());
+             .ForMember(
+                 dest => dest.ActorId,
+                 opt => opt.Ignore())
+             .ForMember(
+                 dest => dest.Actor,
+                 opt => opt.Ignore());
 
 
         // ACTOR UPDATE
@@ -55,7 +58,13 @@ public class MapperProfile : Profile
                 dest => dest.ActorDetail,
                 opt => opt.Ignore());
 
-        CreateMap<ActorUpdateDto, ActorDetail>();
+        CreateMap<ActorUpdateDto, ActorDetail>()
+            .ForMember(
+                dest => dest.ActorId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Actor,
+                opt => opt.Ignore());
 
 
         // ACTOR RETURN
@@ -203,52 +212,100 @@ public class MapperProfile : Profile
                 opt => opt.MapFrom<DirectorImageUrlResolver>())
             .ForMember(
                 dest => dest.Biography,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Biography))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Biography
+                        : null))
             .ForMember(
                 dest => dest.BirthDate,
-                opt => opt.MapFrom(src => src.DirectorDetail!.BirthDate))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.BirthDate
+                        : null))
             .ForMember(
                 dest => dest.BirthPlace,
-                opt => opt.MapFrom(src => src.DirectorDetail!.BirthPlace))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.BirthPlace
+                        : null))
             .ForMember(
                 dest => dest.DeathDate,
-                opt => opt.MapFrom(src => src.DirectorDetail!.DeathDate))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.DeathDate
+                        : null))
             .ForMember(
                 dest => dest.DeathPlace,
-                opt => opt.MapFrom(src => src.DirectorDetail!.DeathPlace))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.DeathPlace
+                        : null))
             .ForMember(
                 dest => dest.HeightInMeters,
-                opt => opt.MapFrom(src => src.DirectorDetail!.HeightInMeters))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.HeightInMeters
+                        : null))
             .ForMember(
                 dest => dest.AlternativeName,
-                opt => opt.MapFrom(src => src.DirectorDetail!.AlternativeName))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.AlternativeName
+                        : null))
             .ForMember(
                 dest => dest.Nickname,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Nickname))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Nickname
+                        : null))
             .ForMember(
                 dest => dest.Spouse,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Spouse))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Spouse
+                        : null))
             .ForMember(
                 dest => dest.Children,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Children))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Children
+                        : null))
             .ForMember(
                 dest => dest.Parents,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Parents))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Parents
+                        : null))
             .ForMember(
                 dest => dest.Relatives,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Relatives))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Relatives
+                        : null))
             .ForMember(
                 dest => dest.OtherWorks,
-                opt => opt.MapFrom(src => src.DirectorDetail!.OtherWorks))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.OtherWorks
+                        : null))
             .ForMember(
                 dest => dest.Trivia,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Trivia))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Trivia
+                        : null))
             .ForMember(
                 dest => dest.Quote,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Quote))
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Quote
+                        : null))
             .ForMember(
                 dest => dest.Trademark,
-                opt => opt.MapFrom(src => src.DirectorDetail!.Trademark));
+                opt => opt.MapFrom(src =>
+                    src.DirectorDetail != null
+                        ? src.DirectorDetail.Trademark
+                        : null));
 
         // WRITER CREATE
         CreateMap<WriterCreateDto, Writer>()
@@ -293,51 +350,99 @@ public class MapperProfile : Profile
                 opt => opt.MapFrom<WriterImageUrlResolver>())
             .ForMember(
                 dest => dest.Biography,
-                opt => opt.MapFrom(src => src.WriterDetail!.Biography))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Biography
+                        : null))
             .ForMember(
                 dest => dest.BirthDate,
-                opt => opt.MapFrom(src => src.WriterDetail!.BirthDate))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.BirthDate
+                        : null))
             .ForMember(
                 dest => dest.BirthPlace,
-                opt => opt.MapFrom(src => src.WriterDetail!.BirthPlace))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.BirthPlace
+                        : null))
             .ForMember(
                 dest => dest.DeathDate,
-                opt => opt.MapFrom(src => src.WriterDetail!.DeathDate))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.DeathDate
+                        : null))
             .ForMember(
                 dest => dest.DeathPlace,
-                opt => opt.MapFrom(src => src.WriterDetail!.DeathPlace))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.DeathPlace
+                        : null))
             .ForMember(
                 dest => dest.HeightInMeters,
-                opt => opt.MapFrom(src => src.WriterDetail!.HeightInMeters))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.HeightInMeters
+                        : null))
             .ForMember(
                 dest => dest.AlternativeName,
-                opt => opt.MapFrom(src => src.WriterDetail!.AlternativeName))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.AlternativeName
+                        : null))
             .ForMember(
                 dest => dest.Nickname,
-                opt => opt.MapFrom(src => src.WriterDetail!.Nickname))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Nickname
+                        : null))
             .ForMember(
                 dest => dest.Spouse,
-                opt => opt.MapFrom(src => src.WriterDetail!.Spouse))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Spouse
+                        : null))
             .ForMember(
                 dest => dest.Children,
-                opt => opt.MapFrom(src => src.WriterDetail!.Children))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Children
+                        : null))
             .ForMember(
                 dest => dest.Parents,
-                opt => opt.MapFrom(src => src.WriterDetail!.Parents))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Parents
+                        : null))
             .ForMember(
                 dest => dest.Relatives,
-                opt => opt.MapFrom(src => src.WriterDetail!.Relatives))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Relatives
+                        : null))
             .ForMember(
                 dest => dest.OtherWorks,
-                opt => opt.MapFrom(src => src.WriterDetail!.OtherWorks))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.OtherWorks
+                        : null))
             .ForMember(
                 dest => dest.Trivia,
-                opt => opt.MapFrom(src => src.WriterDetail!.Trivia))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Trivia
+                        : null))
             .ForMember(
                 dest => dest.Quote,
-                opt => opt.MapFrom(src => src.WriterDetail!.Quote))
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Quote
+                        : null))
             .ForMember(
                 dest => dest.Trademark,
-                opt => opt.MapFrom(src => src.WriterDetail!.Trademark));
+                opt => opt.MapFrom(src =>
+                    src.WriterDetail != null
+                        ? src.WriterDetail.Trademark
+                        : null));
     }
 }

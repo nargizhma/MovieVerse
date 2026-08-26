@@ -11,6 +11,7 @@ namespace MovieVerse.Services;
 
 public class ActorService(
     IGenericRepository<Actor> repository,
+     IWebHostEnvironment environment,
     IMapper mapper)
     : IActorService
 {
@@ -46,19 +47,17 @@ public class ActorService(
         {
             actor.ProfileImageUrl =
                 await dto.ProfileImage.SaveFileAsync(
-                    Path.Combine(
-                        "wwwroot",
-                        "images",
-                        "actors"));
+                    GetImageFolderPath());
         }
 
         await repository.AddAsync(actor);
+
         await repository.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(
-        Guid id,
-        ActorUpdateDto dto)
+    Guid id,
+    ActorUpdateDto dto)
     {
         var actor = await repository.Query()
             .Include(x => x.ActorDetail)
@@ -68,32 +67,74 @@ public class ActorService(
             throw new NotFoundException(
                 "Actor was not found.");
 
+        var oldImage =
+            actor.ProfileImageUrl;
+
         mapper.Map(dto, actor);
 
         if (actor.ActorDetail is null)
         {
-            actor.ActorDetail = mapper.Map<ActorDetail>(dto);
+            actor.ActorDetail =
+                mapper.Map<ActorDetail>(dto);
         }
         else
         {
-            mapper.Map(dto, actor.ActorDetail);
+            mapper.Map(
+                dto,
+                actor.ActorDetail);
+        }
+
+        if (dto.ProfileImage is not null)
+        {
+            actor.ProfileImageUrl =
+                await dto.ProfileImage.SaveFileAsync(
+                    GetImageFolderPath());
         }
 
         repository.Update(actor);
 
         await repository.SaveChangesAsync();
+
+        if (dto.ProfileImage is not null)
+        {
+            FileManager.DeleteFile(
+                oldImage,
+                GetImageFolderPath());
+        }
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        var actor = await repository.GetByIdAsync(id);
+        var actor =
+            await repository.GetByIdAsync(id);
 
         if (actor is null)
             throw new NotFoundException(
                 "Actor was not found.");
 
+        var imageName =
+            actor.ProfileImageUrl;
+
         repository.Delete(actor);
 
         await repository.SaveChangesAsync();
+
+        FileManager.DeleteFile(
+            imageName,
+            GetImageFolderPath());
+    }
+
+    private string GetImageFolderPath()
+    {
+        var webRootPath =
+            environment.WebRootPath
+            ?? Path.Combine(
+                environment.ContentRootPath,
+                "wwwroot");
+
+        return Path.Combine(
+            webRootPath,
+            "images",
+            "actors");
     }
 }

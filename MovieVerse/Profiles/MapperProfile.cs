@@ -3,6 +3,7 @@ using MovieVerse.Dtos.Actors;
 using MovieVerse.Dtos.Auth;
 using MovieVerse.Dtos.Directors;
 using MovieVerse.Dtos.Genres;
+using MovieVerse.Dtos.Movies;
 using MovieVerse.Dtos.Writers;
 using MovieVerse.Models;
 using MovieVerse.Profiles.Resolvers;
@@ -444,5 +445,220 @@ public class MapperProfile : Profile
                     src.WriterDetail != null
                         ? src.WriterDetail.Trademark
                         : null));
+        // movie create
+        CreateMap<MovieCreateDto, Movie>()
+            .ForMember(
+                dest => dest.PosterUrl,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieDetail,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieGenres,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieActors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieDirectors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieWriters,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Reviews,
+                opt => opt.Ignore());
+
+        CreateMap<MovieCreateDto, MovieDetail>()
+            .ForMember(
+                dest => dest.MovieId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Movie,
+                opt => opt.Ignore());
+
+        // movie update
+        CreateMap<MovieUpdateDto, Movie>()
+            .ForMember(
+                dest => dest.PosterUrl,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieDetail,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieGenres,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieActors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieDirectors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.MovieWriters,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Reviews,
+                opt => opt.Ignore());
+
+        CreateMap<MovieUpdateDto, MovieDetail>()
+            .ForMember(
+                dest => dest.MovieId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Movie,
+                opt => opt.Ignore());
+
+        // simple return
+        CreateMap<Movie, MovieReturnDto>()
+            .ForMember(
+                dest => dest.PosterUrl,
+                opt => opt.MapFrom<
+                    MoviePosterUrlResolver<MovieReturnDto>>())
+            .ForMember(
+                dest => dest.Genres,
+                opt => opt.MapFrom(src =>
+                    src.MovieGenres.Select(x => x.Genre)))
+            .ForMember(
+                dest => dest.AverageRating,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count != 0
+                        ? src.Reviews.Average(x => x.Rating)
+                        : (decimal?)null))
+            .ForMember(
+                dest => dest.ReviewCount,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count));
+
+        // detailed return
+        CreateMap<Movie, MovieDetailsDto>()
+            .ForMember(
+                dest => dest.PosterUrl,
+                opt => opt.MapFrom<
+                    MoviePosterUrlResolver<MovieDetailsDto>>())
+            .ForMember(
+                dest => dest.Storyline,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.Storyline
+                        : null))
+            .ForMember(
+                dest => dest.Tagline,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.Tagline
+                        : null))
+            .ForMember(
+                dest => dest.OriginalLanguage,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.OriginalLanguage
+                        : null))
+            .ForMember(
+                dest => dest.CountryOfOrigin,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.CountryOfOrigin
+                        : null))
+            .ForMember(
+                dest => dest.FilmingLocation,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.FilmingLocation
+                        : null))
+            .ForMember(
+                dest => dest.ProductionCompany,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.ProductionCompany
+                        : null))
+            .ForMember(
+                dest => dest.Budget,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.Budget
+                        : null))
+            .ForMember(
+                dest => dest.GrossWorldwide,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.GrossWorldwide
+                        : null))
+            .ForMember(
+                dest => dest.Color,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.Color
+                        : null))
+            .ForMember(
+                dest => dest.SoundMix,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.SoundMix
+                        : null))
+            .ForMember(
+                dest => dest.Trivia,
+                opt => opt.MapFrom(src =>
+                    src.MovieDetail != null
+                        ? src.MovieDetail.Trivia
+                        : null))
+            .ForMember(
+                dest => dest.Genres,
+                opt => opt.MapFrom(src =>
+                    src.MovieGenres.Select(x => x.Genre)))
+            .ForMember(
+                dest => dest.Cast,
+                opt => opt.MapFrom(src =>
+                    src.MovieActors
+                        .OrderBy(x => x.CastOrder)))
+            .ForMember(
+                dest => dest.Directors,
+                opt => opt.MapFrom(src =>
+                    src.MovieDirectors))
+            .ForMember(
+                dest => dest.Writers,
+                opt => opt.MapFrom(src =>
+                    src.MovieWriters))
+            .ForMember(
+                dest => dest.AverageRating,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count != 0
+                        ? src.Reviews.Average(x => x.Rating)
+                        : (decimal?)null))
+            .ForMember(
+                dest => dest.ReviewCount,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count));
+
+        // relationship mapping
+        CreateMap<MovieActor, MovieCastReturnDto>()
+            .ForMember(
+                dest => dest.ActorId,
+                opt => opt.MapFrom(src =>
+                    src.ActorId))
+            .ForMember(
+                dest => dest.FullName,
+                opt => opt.MapFrom(src =>
+                    src.Actor.FullName));
+
+        CreateMap<MovieDirector, MovieCrewReturnDto>()
+            .ForMember(
+                dest => dest.Id,
+                opt => opt.MapFrom(src =>
+                    src.DirectorId))
+            .ForMember(
+                dest => dest.FullName,
+                opt => opt.MapFrom(src =>
+                    src.Director.FullName));
+
+        CreateMap<MovieWriter, MovieCrewReturnDto>()
+            .ForMember(
+                dest => dest.Id,
+                opt => opt.MapFrom(src =>
+                    src.WriterId))
+            .ForMember(
+                dest => dest.FullName,
+                opt => opt.MapFrom(src =>
+                    src.Writer.FullName));
     }
 }

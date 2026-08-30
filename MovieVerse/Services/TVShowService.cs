@@ -72,7 +72,12 @@ public class TVShowService(
 
             query = query.Where(x =>
                 x.TVShowActors.Any(a =>
-                    a.ActorId == actorId));
+                    a.ActorId == actorId)
+                ||
+                x.Seasons.Any(season =>
+                    season.Episodes.Any(episode =>
+                        episode.EpisodeActors.Any(a =>
+                            a.ActorId == actorId))));
         }
 
         if (filter.DirectorId.HasValue)

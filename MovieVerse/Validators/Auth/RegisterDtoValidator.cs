@@ -37,8 +37,8 @@ public class RegisterDtoValidator
             .WithMessage("Password must contain at least one special character.");
 
         RuleFor(x => x.DisplayName)
-            .MaximumLength(100)
-            .WithMessage("Display name cannot exceed 100 characters.")
+            .MaximumLength(50)
+            .WithMessage("Display name cannot exceed 50 characters.")
             .When(x => !string.IsNullOrWhiteSpace(x.DisplayName));
     }
 }

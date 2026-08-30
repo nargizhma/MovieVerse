@@ -1,10 +1,12 @@
-﻿using MovieVerse.Dtos.TVShows;
+using MovieVerse.Dtos.Common;
+using MovieVerse.Dtos.TVShows;
 
 namespace MovieVerse.Services.Interfaces;
 
 public interface ITVShowService
 {
-    Task<List<TVShowReturnDto>> GetAllAsync();
+    Task<PagedResultDto<TVShowReturnDto>> GetAllAsync(
+        CatalogFilterDto filter);
 
     Task<TVShowDetailsDto> GetByIdAsync(Guid id);
 

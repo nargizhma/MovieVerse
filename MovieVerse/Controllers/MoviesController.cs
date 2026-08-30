@@ -1,6 +1,7 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MovieVerse.Dtos.Common;
 using MovieVerse.Dtos.Movies;
 using MovieVerse.Exceptions;
 using MovieVerse.Services.Interfaces;
@@ -12,15 +13,35 @@ namespace MovieVerse.Controllers;
 public class MoviesController(
     IMovieService movieService,
     IValidator<MovieCreateDto> createDtoValidator,
-    IValidator<MovieUpdateDto> updateDtoValidator)
+    IValidator<MovieUpdateDto> updateDtoValidator,
+    IValidator<CatalogFilterDto> filterValidator)
     : ControllerBase
 {
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] CatalogFilterDto filter)
     {
+        var validationResult =
+            await filterValidator
+                .ValidateAsync(filter);
+
+        if (!validationResult.IsValid)
+        {
+            var errors =
+                string.Join(
+                    " ",
+                    validationResult.Errors
+                        .Select(x =>
+                            x.ErrorMessage));
+
+            throw new BadRequestException(
+                errors);
+        }
+
         var movies =
-            await movieService.GetAllAsync();
+            await movieService.GetAllAsync(
+                filter);
 
         return Ok(movies);
     }

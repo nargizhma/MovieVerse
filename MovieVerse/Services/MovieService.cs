@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MovieVerse.Dtos.Common;
 using MovieVerse.Dtos.Movies;
 using MovieVerse.Exceptions;
 using MovieVerse.Extensions;
@@ -20,17 +21,169 @@ public class MovieService(
     IWebHostEnvironment environment)
     : IMovieService
 {
-    public async Task<List<MovieReturnDto>> GetAllAsync()
+    public async Task<PagedResultDto<MovieReturnDto>> GetAllAsync(
+        CatalogFilterDto filter)
     {
-        var movies = await movieRepository.Query()
-            .Include(x => x.MovieGenres)
-                .ThenInclude(x => x.Genre)
-            .Include(x => x.Reviews)
-            .AsNoTracking()
-            .ToListAsync();
+        var query =
+            movieRepository.Query()
+                .Include(x => x.MovieGenres)
+                    .ThenInclude(x => x.Genre)
+                .Include(x => x.Reviews)
+                .AsNoTracking();
 
-        return mapper.Map<List<MovieReturnDto>>(
-            movies);
+        if (!string.IsNullOrWhiteSpace(
+                filter.Search))
+        {
+            var search =
+                filter.Search.Trim();
+
+            query = query.Where(x =>
+                EF.Functions.Like(
+                    x.Title,
+                    $"%{search}%"));
+        }
+
+        if (filter.GenreId.HasValue)
+        {
+            var genreId =
+                filter.GenreId.Value;
+
+            query = query.Where(x =>
+                x.MovieGenres.Any(g =>
+                    g.GenreId == genreId));
+        }
+
+        if (filter.ReleaseYear.HasValue)
+        {
+            var releaseYear =
+                filter.ReleaseYear.Value;
+
+            query = query.Where(x =>
+                x.ReleaseDate.Year ==
+                releaseYear);
+        }
+
+        if (filter.ActorId.HasValue)
+        {
+            var actorId =
+                filter.ActorId.Value;
+
+            query = query.Where(x =>
+                x.MovieActors.Any(a =>
+                    a.ActorId == actorId));
+        }
+
+        if (filter.DirectorId.HasValue)
+        {
+            var directorId =
+                filter.DirectorId.Value;
+
+            query = query.Where(x =>
+                x.MovieDirectors.Any(d =>
+                    d.DirectorId ==
+                    directorId));
+        }
+
+        if (filter.MinRating.HasValue)
+        {
+            var minRating =
+                filter.MinRating.Value;
+
+            query = query.Where(x =>
+                x.Reviews.Any() &&
+                x.Reviews.Average(r =>
+                    r.Rating) >= minRating);
+        }
+
+        if (filter.MaxRating.HasValue)
+        {
+            var maxRating =
+                filter.MaxRating.Value;
+
+            query = query.Where(x =>
+                x.Reviews.Any() &&
+                x.Reviews.Average(r =>
+                    r.Rating) <= maxRating);
+        }
+
+        query =
+            ApplySorting(
+                query,
+                filter);
+
+        var totalCount =
+            await query.CountAsync();
+
+        var movies =
+            await query
+                .Skip(
+                    (filter.PageNumber - 1) *
+                    filter.PageSize)
+                .Take(filter.PageSize)
+                .ToListAsync();
+
+        var items =
+            mapper.Map<List<MovieReturnDto>>(
+                movies);
+
+        return new PagedResultDto<MovieReturnDto>
+        {
+            Items = items,
+            PageNumber =
+                filter.PageNumber,
+            PageSize =
+                filter.PageSize,
+            TotalCount =
+                totalCount,
+            TotalPages =
+                (int)Math.Ceiling(
+                    totalCount /
+                    (double)filter.PageSize)
+        };
+    }
+
+    private static IQueryable<Movie> ApplySorting(
+        IQueryable<Movie> query,
+        CatalogFilterDto filter)
+    {
+        var sortBy =
+            filter.SortBy?
+                .Trim()
+                .ToLowerInvariant();
+
+        return sortBy switch
+        {
+            "title" =>
+                filter.SortDescending
+                    ? query.OrderByDescending(
+                        x => x.Title)
+                    : query.OrderBy(
+                        x => x.Title),
+
+            "rating" =>
+                filter.SortDescending
+                    ? query.OrderByDescending(
+                        x => x.Reviews.Any()
+                            ? x.Reviews.Average(
+                                r => r.Rating)
+                            : 0m)
+                    : query.OrderBy(
+                        x => x.Reviews.Any()
+                            ? x.Reviews.Average(
+                                r => r.Rating)
+                            : 0m),
+
+            "year" =>
+                filter.SortDescending
+                    ? query.OrderByDescending(
+                        x => x.ReleaseDate)
+                    : query.OrderBy(
+                        x => x.ReleaseDate),
+
+            _ =>
+                query.OrderByDescending(
+                    x => x.ReleaseDate)
+        };
     }
 
     public async Task<MovieDetailsDto> GetByIdAsync(

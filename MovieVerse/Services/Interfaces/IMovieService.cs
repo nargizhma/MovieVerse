@@ -1,10 +1,12 @@
-﻿using MovieVerse.Dtos.Movies;
+using MovieVerse.Dtos.Common;
+using MovieVerse.Dtos.Movies;
 
 namespace MovieVerse.Services.Interfaces;
 
 public interface IMovieService
 {
-    Task<List<MovieReturnDto>> GetAllAsync();
+    Task<PagedResultDto<MovieReturnDto>> GetAllAsync(
+        CatalogFilterDto filter);
 
     Task<MovieDetailsDto> GetByIdAsync(Guid id);
 

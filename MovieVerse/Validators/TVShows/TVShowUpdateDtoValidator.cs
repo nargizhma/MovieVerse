@@ -26,6 +26,11 @@ public class TVShowUpdateDtoValidator
             .NotEmpty()
             .WithMessage(
                 "TV show synopsis is required.");
+        RuleFor(x => x.ReleaseDate)
+            .Must(date =>
+                date.Year is >= 1888 and <= 2100)
+            .WithMessage(
+                "TV show release year must be between 1888 and 2100.");
 
         RuleFor(x => x.RuntimeMinutes)
             .GreaterThan(0)

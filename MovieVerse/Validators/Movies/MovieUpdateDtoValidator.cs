@@ -22,6 +22,12 @@ public class MovieUpdateDtoValidator
             .WithMessage(
                 "Movie synopsis is required.");
 
+        RuleFor(x => x.ReleaseDate)
+            .Must(date =>
+                date.Year is >= 1888 and <= 2100)
+            .WithMessage(
+                "Movie release year must be between 1888 and 2100.");
+
         RuleFor(x => x.RuntimeMinutes)
             .GreaterThan(0)
             .WithMessage(

@@ -282,17 +282,47 @@ public class TVShowService(
 
     public async Task DeleteAsync(Guid id)
     {
-        var tvShow = await tvShowRepository.GetByIdAsync(id);
+        var tvShow =
+            await tvShowRepository.Query()
+                .Include(x => x.Seasons)
+                    .ThenInclude(x =>
+                        x.Episodes)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id);
 
         if (tvShow is null)
-            throw new NotFoundException("TV show was not found.");
+            throw new NotFoundException(
+                "TV show was not found.");
 
-        var poster = tvShow.PosterUrl;
+        var poster =
+            tvShow.PosterUrl;
 
-        tvShowRepository.Delete(tvShow);
-        await tvShowRepository.SaveChangesAsync();
+        var episodeImages =
+            tvShow.Seasons
+                .SelectMany(x =>
+                    x.Episodes)
+                .Select(x =>
+                    x.ImageUrl)
+                .Where(x =>
+                    !string.IsNullOrWhiteSpace(x))
+                .ToList();
 
-        FileManager.DeleteFile(poster, GetImageFolderPath());
+        tvShowRepository.Delete(
+            tvShow);
+
+        await tvShowRepository
+            .SaveChangesAsync();
+
+        FileManager.DeleteFile(
+            poster,
+            GetImageFolderPath());
+
+        foreach (var image in episodeImages)
+        {
+            FileManager.DeleteFile(
+                image,
+                GetEpisodeImageFolderPath());
+        }
     }
 
     private static void SetRelationships(
@@ -369,5 +399,18 @@ public class TVShowService(
             ?? Path.Combine(environment.ContentRootPath, "wwwroot");
 
         return Path.Combine(webRootPath, "images", "tvshows");
+    }
+    private string GetEpisodeImageFolderPath()
+    {
+        var webRootPath =
+            environment.WebRootPath
+            ?? Path.Combine(
+                environment.ContentRootPath,
+                "wwwroot");
+
+        return Path.Combine(
+            webRootPath,
+            "images",
+            "episodes");
     }
 }

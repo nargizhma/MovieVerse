@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MovieVerse.Dtos.Seasons;
 using MovieVerse.Exceptions;
+using MovieVerse.Extensions;
 using MovieVerse.Models;
 using MovieVerse.Repositories.Interfaces;
 using MovieVerse.Services.Interfaces;
@@ -11,7 +12,8 @@ namespace MovieVerse.Services;
 public class SeasonService(
     IGenericRepository<Season> seasonRepository,
     IGenericRepository<TVShow> tvShowRepository,
-    IMapper mapper)
+    IMapper mapper,
+    IWebHostEnvironment environment)
     : ISeasonService
 {
     public async Task<List<SeasonReturnDto>>
@@ -129,18 +131,34 @@ public class SeasonService(
         Guid id)
     {
         var season =
-            await seasonRepository
-                .GetByIdAsync(id);
+            await seasonRepository.Query()
+                .Include(x => x.Episodes)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id);
 
         if (season is null)
             throw new NotFoundException(
                 "Season was not found.");
+
+        var episodeImages =
+            season.Episodes
+                .Select(x => x.ImageUrl)
+                .Where(x =>
+                    !string.IsNullOrWhiteSpace(x))
+                .ToList();
 
         seasonRepository.Delete(
             season);
 
         await seasonRepository
             .SaveChangesAsync();
+
+        foreach (var image in episodeImages)
+        {
+            FileManager.DeleteFile(
+                image,
+                GetEpisodeImageFolderPath());
+        }
     }
 
     private async Task
@@ -155,5 +173,18 @@ public class SeasonService(
         if (!exists)
             throw new NotFoundException(
                 "TV show was not found.");
+    }
+    private string GetEpisodeImageFolderPath()
+    {
+        var webRootPath =
+            environment.WebRootPath
+            ?? Path.Combine(
+                environment.ContentRootPath,
+                "wwwroot");
+
+        return Path.Combine(
+            webRootPath,
+            "images",
+            "episodes");
     }
 }

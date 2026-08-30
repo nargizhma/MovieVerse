@@ -1,5 +1,7 @@
 using MovieVerse.Dtos.Profiles;
 
+namespace MovieVerse.Services.Interfaces;
+
 public interface IUserProfileService
 {
     Task<MyProfileReturnDto> GetMineAsync(

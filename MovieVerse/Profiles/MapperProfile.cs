@@ -2,8 +2,11 @@
 using MovieVerse.Dtos.Actors;
 using MovieVerse.Dtos.Auth;
 using MovieVerse.Dtos.Directors;
+using MovieVerse.Dtos.Episodes;
 using MovieVerse.Dtos.Genres;
 using MovieVerse.Dtos.Movies;
+using MovieVerse.Dtos.Seasons;
+using MovieVerse.Dtos.TVShows;
 using MovieVerse.Dtos.Writers;
 using MovieVerse.Models;
 using MovieVerse.Profiles.Resolvers;
@@ -652,6 +655,377 @@ public class MapperProfile : Profile
                     src.Director.FullName));
 
         CreateMap<MovieWriter, MovieCrewReturnDto>()
+            .ForMember(
+                dest => dest.Id,
+                opt => opt.MapFrom(src =>
+                    src.WriterId))
+            .ForMember(
+                dest => dest.FullName,
+                opt => opt.MapFrom(src =>
+                    src.Writer.FullName));
+        // TV SHOW CREATE
+        CreateMap<TVShowCreateDto, TVShow>()
+            .ForMember(
+                dest => dest.PosterUrl,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShowDetail,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Seasons,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShowGenres,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShowActors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Reviews,
+                opt => opt.Ignore());
+
+        CreateMap<TVShowCreateDto, TVShowDetail>()
+            .ForMember(
+                dest => dest.TVShowId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShow,
+                opt => opt.Ignore());
+
+
+        // TV SHOW UPDATE
+        CreateMap<TVShowUpdateDto, TVShow>()
+            .ForMember(
+                dest => dest.PosterUrl,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShowDetail,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Seasons,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShowGenres,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShowActors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Reviews,
+                opt => opt.Ignore());
+
+        CreateMap<TVShowUpdateDto, TVShowDetail>()
+            .ForMember(
+                dest => dest.TVShowId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShow,
+                opt => opt.Ignore());
+
+
+        // TV SHOW RETURN
+        CreateMap<TVShow, TVShowReturnDto>()
+            .ForMember(
+                dest => dest.PosterUrl,
+                opt => opt.MapFrom<
+                    TVShowPosterUrlResolver<
+                        TVShowReturnDto>>())
+            .ForMember(
+                dest => dest.Genres,
+                opt => opt.MapFrom(src =>
+                    src.TVShowGenres
+                        .Select(x => x.Genre)))
+            .ForMember(
+                dest => dest.AverageRating,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count != 0
+                        ? src.Reviews
+                            .Average(x => x.Rating)
+                        : (decimal?)null))
+            .ForMember(
+                dest => dest.ReviewCount,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count));
+
+
+        CreateMap<TVShow, TVShowDetailsDto>()
+            .ForMember(
+                dest => dest.PosterUrl,
+                opt => opt.MapFrom<
+                    TVShowPosterUrlResolver<
+                        TVShowDetailsDto>>())
+
+            .ForMember(
+                dest => dest.Storyline,
+                opt => opt.MapFrom(src =>
+                    src.TVShowDetail != null
+                        ? src.TVShowDetail.Storyline
+                        : null))
+
+            .ForMember(
+                dest => dest.OriginalLanguage,
+                opt => opt.MapFrom(src =>
+                    src.TVShowDetail != null
+                        ? src.TVShowDetail.OriginalLanguage
+                        : null))
+
+            .ForMember(
+                dest => dest.CountryOfOrigin,
+                opt => opt.MapFrom(src =>
+                    src.TVShowDetail != null
+                        ? src.TVShowDetail.CountryOfOrigin
+                        : null))
+
+            .ForMember(
+                dest => dest.ProductionCompany,
+                opt => opt.MapFrom(src =>
+                    src.TVShowDetail != null
+                        ? src.TVShowDetail.ProductionCompany
+                        : null))
+
+            .ForMember(
+                dest => dest.Trivia,
+                opt => opt.MapFrom(src =>
+                    src.TVShowDetail != null
+                        ? src.TVShowDetail.Trivia
+                        : null))
+
+            .ForMember(
+                dest => dest.Color,
+                opt => opt.MapFrom(src =>
+                    src.TVShowDetail != null
+                        ? src.TVShowDetail.Color
+                        : null))
+
+            .ForMember(
+                dest => dest.Genres,
+                opt => opt.MapFrom(src =>
+                    src.TVShowGenres
+                        .Select(x => x.Genre)))
+
+            .ForMember(
+                dest => dest.Cast,
+                opt => opt.MapFrom(src =>
+                    src.TVShowActors
+                        .OrderBy(x =>
+                            x.CastOrder)))
+
+            .ForMember(
+                dest => dest.Seasons,
+                opt => opt.MapFrom(src =>
+                    src.Seasons
+                        .OrderBy(x =>
+                            x.SeasonNumber)))
+
+            .ForMember(
+                dest => dest.AverageRating,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count != 0
+                        ? src.Reviews
+                            .Average(x => x.Rating)
+                        : (decimal?)null))
+
+            .ForMember(
+                dest => dest.ReviewCount,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count));
+
+
+        CreateMap<
+            TVShowActor,
+            TVShowCastReturnDto>()
+            .ForMember(
+                dest => dest.ActorId,
+                opt => opt.MapFrom(src =>
+                    src.ActorId))
+            .ForMember(
+                dest => dest.FullName,
+                opt => opt.MapFrom(src =>
+                    src.Actor.FullName));
+
+
+        // SEASON
+        CreateMap<SeasonCreateDto, Season>()
+            .ForMember(
+                dest => dest.TVShowId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShow,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Episodes,
+                opt => opt.Ignore());
+
+        CreateMap<SeasonUpdateDto, Season>()
+            .ForMember(
+                dest => dest.TVShowId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShow,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Episodes,
+                opt => opt.Ignore());
+
+        CreateMap<Season, SeasonReturnDto>()
+            .ForMember(
+                dest => dest.EpisodeCount,
+                opt => opt.MapFrom(src =>
+                    src.Episodes.Count));
+
+
+        // EPISODE CREATE
+        CreateMap<EpisodeCreateDto, Episode>()
+            .ForMember(
+                dest => dest.ImageUrl,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.SeasonId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Season,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Reviews,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.EpisodeActors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.EpisodeDirectors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.EpisodeWriters,
+                opt => opt.Ignore());
+
+
+        // EPISODE UPDATE
+        CreateMap<EpisodeUpdateDto, Episode>()
+            .ForMember(
+                dest => dest.ImageUrl,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.SeasonId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Season,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Reviews,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.EpisodeActors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.EpisodeDirectors,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.EpisodeWriters,
+                opt => opt.Ignore());
+
+
+        // EPISODE RETURN
+        CreateMap<Episode, EpisodeReturnDto>()
+            .ForMember(
+                dest => dest.ImageUrl,
+                opt => opt.MapFrom<
+                    EpisodeImageUrlResolver<
+                        EpisodeReturnDto>>())
+            .ForMember(
+                dest => dest.AverageRating,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count != 0
+                        ? src.Reviews
+                            .Average(x => x.Rating)
+                        : (decimal?)null))
+            .ForMember(
+                dest => dest.ReviewCount,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count));
+
+
+        CreateMap<Episode, EpisodeDetailsDto>()
+            .ForMember(
+                dest => dest.ImageUrl,
+                opt => opt.MapFrom<
+                    EpisodeImageUrlResolver<
+                        EpisodeDetailsDto>>())
+
+            .ForMember(
+                dest => dest.SeasonNumber,
+                opt => opt.MapFrom(src =>
+                    src.Season.SeasonNumber))
+
+            .ForMember(
+                dest => dest.TVShowId,
+                opt => opt.MapFrom(src =>
+                    src.Season.TVShowId))
+
+            .ForMember(
+                dest => dest.TVShowTitle,
+                opt => opt.MapFrom(src =>
+                    src.Season.TVShow.Title))
+
+            .ForMember(
+                dest => dest.Cast,
+                opt => opt.MapFrom(src =>
+                    src.EpisodeActors
+                        .OrderBy(x =>
+                            x.CastOrder)))
+
+            .ForMember(
+                dest => dest.Directors,
+                opt => opt.MapFrom(src =>
+                    src.EpisodeDirectors))
+
+            .ForMember(
+                dest => dest.Writers,
+                opt => opt.MapFrom(src =>
+                    src.EpisodeWriters))
+
+            .ForMember(
+                dest => dest.AverageRating,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count != 0
+                        ? src.Reviews
+                            .Average(x => x.Rating)
+                        : (decimal?)null))
+
+            .ForMember(
+                dest => dest.ReviewCount,
+                opt => opt.MapFrom(src =>
+                    src.Reviews.Count));
+
+
+        CreateMap<
+            EpisodeActor,
+            EpisodeCastReturnDto>()
+            .ForMember(
+                dest => dest.ActorId,
+                opt => opt.MapFrom(src =>
+                    src.ActorId))
+            .ForMember(
+                dest => dest.FullName,
+                opt => opt.MapFrom(src =>
+                    src.Actor.FullName));
+
+
+        CreateMap<
+            EpisodeDirector,
+            EpisodeCrewReturnDto>()
+            .ForMember(
+                dest => dest.Id,
+                opt => opt.MapFrom(src =>
+                    src.DirectorId))
+            .ForMember(
+                dest => dest.FullName,
+                opt => opt.MapFrom(src =>
+                    src.Director.FullName));
+
+
+        CreateMap<
+            EpisodeWriter,
+            EpisodeCrewReturnDto>()
             .ForMember(
                 dest => dest.Id,
                 opt => opt.MapFrom(src =>

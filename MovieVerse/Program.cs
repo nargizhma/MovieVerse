@@ -56,6 +56,17 @@ builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IActorService, ActorService>();
+builder.Services.AddScoped<
+    ITVShowService,
+    TVShowService>();
+
+builder.Services.AddScoped<
+    ISeasonService,
+    SeasonService>();
+
+builder.Services.AddScoped<
+    IEpisodeService,
+    EpisodeService>();
 builder.Services.AddScoped<IDirectorService, DirectorService>();
 builder.Services.AddScoped<IWriterService, WriterService>();
 builder.Services.AddScoped(

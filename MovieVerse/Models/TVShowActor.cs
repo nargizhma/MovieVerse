@@ -13,4 +13,6 @@ public class TVShowActor : BaseEntity
     public Actor Actor { get; set; } = null!;
 
     public string? CharacterName { get; set; }
+
+    public int CastOrder { get; set; }
 }

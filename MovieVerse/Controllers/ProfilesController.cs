@@ -29,6 +29,21 @@ public class ProfilesController(
         return Ok(profile);
     }
 
+    [HttpGet("me/activity")]
+    [Authorize]
+    public async Task<IActionResult> GetMyActivity()
+    {
+        var userId =
+            User.GetUserId();
+
+        var activity =
+            await profileService
+                .GetMyActivityAsync(
+                    userId);
+
+        return Ok(activity);
+    }
+
     [HttpGet("{userName}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetByUserName(

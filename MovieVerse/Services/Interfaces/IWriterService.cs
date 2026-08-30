@@ -6,7 +6,7 @@ public interface IWriterService
 {
     Task<List<WriterReturnDto>> GetAllAsync();
 
-    Task<WriterReturnDto> GetByIdAsync(Guid id);
+    Task<WriterDetailsDto> GetByIdAsync(Guid id);
 
     Task CreateAsync(WriterCreateDto dto);
 

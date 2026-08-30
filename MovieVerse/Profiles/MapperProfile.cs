@@ -1169,5 +1169,10 @@ public class MapperProfile : Profile
             .ForMember(
                 dest => dest.Filmography,
                 opt => opt.Ignore());
+        CreateMap<Writer, WriterDetailsDto>()
+            .IncludeBase<Writer, WriterReturnDto>()
+            .ForMember(
+                dest => dest.Filmography,
+                opt => opt.Ignore());
     }
 }

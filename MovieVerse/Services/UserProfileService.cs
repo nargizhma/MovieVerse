@@ -289,7 +289,177 @@ public class UserProfileService(
             ? null
             : value.Trim();
     }
+    public async Task<List<ProfileActivityItemDto>>
+    GetMyActivityAsync(
+        Guid userId)
+    {
+        var movieReviews =
+            await dbContext.MovieReviews
+                .Where(x =>
+                    x.UserId == userId)
+                .Include(x =>
+                    x.Movie)
+                .AsNoTracking()
+                .ToListAsync();
 
+        var tvShowReviews =
+            await dbContext.TVShowReviews
+                .Where(x =>
+                    x.UserId == userId)
+                .Include(x =>
+                    x.TVShow)
+                .AsNoTracking()
+                .ToListAsync();
+
+        var episodeReviews =
+            await dbContext.EpisodeReviews
+                .Where(x =>
+                    x.UserId == userId)
+                .Include(x =>
+                    x.Episode)
+                    .ThenInclude(x =>
+                        x.Season)
+                    .ThenInclude(x =>
+                        x.TVShow)
+                .AsNoTracking()
+                .ToListAsync();
+
+        var result =
+            new List<ProfileActivityItemDto>();
+
+        result.AddRange(
+            movieReviews.Select(x =>
+                new ProfileActivityItemDto
+                {
+                    ReviewId =
+                        x.Id,
+
+                    ContentType =
+                        "Movie",
+
+                    ContentId =
+                        x.MovieId,
+
+                    Title =
+                        x.Movie.Title,
+
+                    ImageUrl =
+                        BuildMediaImageUrl(
+                            x.Movie.PosterUrl,
+                            "movies"),
+
+                    Rating =
+                        x.Rating,
+
+                    Content =
+                        x.Content
+                }));
+
+        result.AddRange(
+            tvShowReviews.Select(x =>
+                new ProfileActivityItemDto
+                {
+                    ReviewId =
+                        x.Id,
+
+                    ContentType =
+                        "TVShow",
+
+                    ContentId =
+                        x.TVShowId,
+
+                    Title =
+                        x.TVShow.Title,
+
+                    ImageUrl =
+                        BuildMediaImageUrl(
+                            x.TVShow.PosterUrl,
+                            "tvshows"),
+
+                    Rating =
+                        x.Rating,
+
+                    Content =
+                        x.Content
+                }));
+
+        result.AddRange(
+            episodeReviews.Select(x =>
+                new ProfileActivityItemDto
+                {
+                    ReviewId =
+                        x.Id,
+
+                    ContentType =
+                        "Episode",
+
+                    ContentId =
+                        x.EpisodeId,
+
+                    TVShowId =
+                        x.Episode
+                            .Season
+                            .TVShowId,
+
+                    Title =
+                        x.Episode.Title,
+
+                    ParentTitle =
+                        x.Episode
+                            .Season
+                            .TVShow
+                            .Title,
+
+                    SeasonNumber =
+                        x.Episode
+                            .Season
+                            .SeasonNumber,
+
+                    EpisodeNumber =
+                        x.Episode
+                            .EpisodeNumber,
+
+                    ImageUrl =
+                        BuildMediaImageUrl(
+                            x.Episode.ImageUrl,
+                            "episodes"),
+
+                    Rating =
+                        x.Rating,
+
+                    Content =
+                        x.Content
+                }));
+
+        return result
+            .OrderBy(x =>
+                x.ContentType)
+            .ThenBy(x =>
+                x.Title)
+            .ToList();
+    }
+    private string? BuildMediaImageUrl(
+    string? fileName,
+    string folder)
+    {
+        if (string.IsNullOrWhiteSpace(
+                fileName))
+            return null;
+
+        var relativeUrl =
+            $"/images/{folder}/{fileName}";
+
+        var request =
+            httpContextAccessor
+                .HttpContext?
+                .Request;
+
+        if (request is null)
+            return relativeUrl;
+
+        return
+            $"{request.Scheme}://{request.Host}{relativeUrl}";
+    }
     private sealed record ProfileCounts(
         int MovieReviewCount,
         int TVShowReviewCount,

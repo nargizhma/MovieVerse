@@ -1,7 +1,5 @@
 using MovieVerse.Dtos.Profiles;
 
-namespace MovieVerse.Services.Interfaces;
-
 public interface IUserProfileService
 {
     Task<MyProfileReturnDto> GetMineAsync(
@@ -9,6 +7,10 @@ public interface IUserProfileService
 
     Task<UserProfileReturnDto> GetByUserNameAsync(
         string userName);
+
+    Task<List<ProfileActivityItemDto>>
+        GetMyActivityAsync(
+            Guid userId);
 
     Task UpdateAsync(
         Guid userId,

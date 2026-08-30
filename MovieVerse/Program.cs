@@ -71,6 +71,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IActorService, ActorService>();
 builder.Services.AddScoped<
+    IGlobalSearchService,
+    GlobalSearchService>();
+builder.Services.AddScoped<
     ITVShowService,
     TVShowService>();
 builder.Services.AddScoped<
@@ -109,6 +112,10 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     ITVShowReviewService,
     TVShowReviewService>();
+
+builder.Services.AddScoped<
+    ITVShowRecommendationService,
+    TVShowRecommendationService>();
 
 builder.Services.AddScoped<
     IEpisodeReviewService,

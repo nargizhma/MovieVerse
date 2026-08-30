@@ -5,6 +5,7 @@ using MovieVerse.Dtos.Directors;
 using MovieVerse.Dtos.Episodes;
 using MovieVerse.Dtos.Genres;
 using MovieVerse.Dtos.Movies;
+using MovieVerse.Dtos.Reviews;
 using MovieVerse.Dtos.Seasons;
 using MovieVerse.Dtos.TVShows;
 using MovieVerse.Dtos.Writers;
@@ -1034,5 +1035,128 @@ public class MapperProfile : Profile
                 dest => dest.FullName,
                 opt => opt.MapFrom(src =>
                     src.Writer.FullName));
+        // REVIEWS
+
+        CreateMap<ReviewCreateDto, MovieReview>()
+            .ForMember(
+                dest => dest.MovieId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Movie,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.UserId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
+
+        CreateMap<ReviewUpdateDto, MovieReview>()
+            .ForMember(
+                dest => dest.MovieId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Movie,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.UserId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
+
+        CreateMap<MovieReview, ReviewReturnDto>()
+            .ForMember(
+                dest => dest.UserName,
+                opt => opt.MapFrom(src =>
+                    src.User.UserName))
+            .ForMember(
+                dest => dest.DisplayName,
+                opt => opt.MapFrom(src =>
+                    src.User.Profile != null
+                        ? src.User.Profile.DisplayName
+                        : null));
+
+
+        CreateMap<ReviewCreateDto, TVShowReview>()
+            .ForMember(
+                dest => dest.TVShowId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShow,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.UserId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
+
+        CreateMap<ReviewUpdateDto, TVShowReview>()
+            .ForMember(
+                dest => dest.TVShowId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.TVShow,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.UserId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
+
+        CreateMap<TVShowReview, ReviewReturnDto>()
+            .ForMember(
+                dest => dest.UserName,
+                opt => opt.MapFrom(src =>
+                    src.User.UserName))
+            .ForMember(
+                dest => dest.DisplayName,
+                opt => opt.MapFrom(src =>
+                    src.User.Profile != null
+                        ? src.User.Profile.DisplayName
+                        : null));
+
+
+        CreateMap<ReviewCreateDto, EpisodeReview>()
+            .ForMember(
+                dest => dest.EpisodeId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Episode,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.UserId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
+
+        CreateMap<ReviewUpdateDto, EpisodeReview>()
+            .ForMember(
+                dest => dest.EpisodeId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.Episode,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.UserId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
+
+        CreateMap<EpisodeReview, ReviewReturnDto>()
+            .ForMember(
+                dest => dest.UserName,
+                opt => opt.MapFrom(src =>
+                    src.User.UserName))
+            .ForMember(
+                dest => dest.DisplayName,
+                opt => opt.MapFrom(src =>
+                    src.User.Profile != null
+                        ? src.User.Profile.DisplayName
+                        : null));
     }
 }

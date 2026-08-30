@@ -59,10 +59,28 @@ builder.Services.AddScoped<IActorService, ActorService>();
 builder.Services.AddScoped<
     ITVShowService,
     TVShowService>();
+builder.Services.AddScoped<
+    IWatchlistService,
+    WatchlistService>();
+
+builder.Services.AddScoped<
+    IWatchHistoryService,
+    WatchHistoryService>();
 
 builder.Services.AddScoped<
     ISeasonService,
     SeasonService>();
+builder.Services.AddScoped<
+    IMovieReviewService,
+    MovieReviewService>();
+
+builder.Services.AddScoped<
+    ITVShowReviewService,
+    TVShowReviewService>();
+
+builder.Services.AddScoped<
+    IEpisodeReviewService,
+    EpisodeReviewService>();
 
 builder.Services.AddScoped<
     IEpisodeService,

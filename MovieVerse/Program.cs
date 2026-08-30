@@ -60,6 +60,17 @@ builder.Services.AddScoped<
     ITVShowService,
     TVShowService>();
 builder.Services.AddScoped<
+    IAdminDashboardService,
+    AdminDashboardService>();
+
+builder.Services.AddScoped<
+    IAdminUserService,
+    AdminUserService>();
+
+builder.Services.AddScoped<
+    IAdminReviewService,
+    AdminReviewService>();
+builder.Services.AddScoped<
     IWatchlistService,
     WatchlistService>();
 builder.Services.AddScoped<

@@ -1,4 +1,4 @@
-﻿using MovieVerse.Dtos.Directors;
+using MovieVerse.Dtos.Directors;
 
 namespace MovieVerse.Services.Interfaces;
 
@@ -6,7 +6,7 @@ public interface IDirectorService
 {
     Task<List<DirectorReturnDto>> GetAllAsync();
 
-    Task<DirectorReturnDto> GetByIdAsync(Guid id);
+    Task<DirectorDetailsDto> GetByIdAsync(Guid id);
 
     Task CreateAsync(DirectorCreateDto dto);
 

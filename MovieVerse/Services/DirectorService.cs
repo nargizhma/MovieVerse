@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MovieVerse.Dtos.Directors;
+using MovieVerse.Dtos.People;
 using MovieVerse.Exceptions;
 using MovieVerse.Extensions;
 using MovieVerse.Models;
@@ -11,8 +12,11 @@ namespace MovieVerse.Services;
 
 public class DirectorService(
     IGenericRepository<Director> repository,
+    IGenericRepository<MovieDirector> movieDirectorRepository,
+    IGenericRepository<EpisodeDirector> episodeDirectorRepository,
     IMapper mapper,
-    IWebHostEnvironment environment)
+    IWebHostEnvironment environment,
+    IHttpContextAccessor httpContextAccessor)
     : IDirectorService
 {
     public async Task<List<DirectorReturnDto>> GetAllAsync()
@@ -22,10 +26,12 @@ public class DirectorService(
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<DirectorReturnDto>>(directors);
+        return mapper.Map<List<DirectorReturnDto>>(
+            directors);
     }
 
-    public async Task<DirectorReturnDto> GetByIdAsync(Guid id)
+    public async Task<DirectorDetailsDto> GetByIdAsync(
+        Guid id)
     {
         var director = await repository.Query()
             .Include(x => x.DirectorDetail)
@@ -36,7 +42,14 @@ public class DirectorService(
             throw new NotFoundException(
                 "Director was not found.");
 
-        return mapper.Map<DirectorReturnDto>(director);
+        var result =
+            mapper.Map<DirectorDetailsDto>(
+                director);
+
+        result.Filmography =
+            await GetFilmographyAsync(id);
+
+        return result;
     }
 
     public async Task CreateAsync(
@@ -124,6 +137,133 @@ public class DirectorService(
         FileManager.DeleteFile(
             imageName,
             GetImageFolderPath());
+    }
+
+    private async Task<List<FilmographyItemDto>>
+        GetFilmographyAsync(
+            Guid directorId)
+    {
+        var movieCredits =
+            await movieDirectorRepository.Query()
+                .Where(x =>
+                    x.DirectorId == directorId)
+                .Include(x =>
+                    x.Movie)
+                .AsNoTracking()
+                .ToListAsync();
+
+        var episodeCredits =
+            await episodeDirectorRepository.Query()
+                .Where(x =>
+                    x.DirectorId == directorId)
+                .Include(x =>
+                    x.Episode)
+                    .ThenInclude(x =>
+                        x.Season)
+                    .ThenInclude(x =>
+                        x.TVShow)
+                .AsNoTracking()
+                .ToListAsync();
+
+        var filmography =
+            new List<FilmographyItemDto>();
+
+        filmography.AddRange(
+            movieCredits.Select(x =>
+                new FilmographyItemDto
+                {
+                    Id =
+                        x.MovieId,
+
+                    ContentType =
+                        "Movie",
+
+                    Title =
+                        x.Movie.Title,
+
+                    ReleaseYear =
+                        x.Movie.ReleaseDate.Year,
+
+                    PosterUrl =
+                        BuildPosterUrl(
+                            x.Movie.PosterUrl,
+                            "movies")
+                }));
+
+        var tvShowCredits =
+            episodeCredits
+                .GroupBy(x =>
+                    x.Episode.Season.TVShowId)
+                .Select(group =>
+                {
+                    var first =
+                        group.First();
+
+                    var tvShow =
+                        first.Episode
+                            .Season
+                            .TVShow;
+
+                    return new FilmographyItemDto
+                    {
+                        Id =
+                            tvShow.Id,
+
+                        ContentType =
+                            "TVShow",
+
+                        Title =
+                            tvShow.Title,
+
+                        ReleaseYear =
+                            tvShow.ReleaseDate.Year,
+
+                        PosterUrl =
+                            BuildPosterUrl(
+                                tvShow.PosterUrl,
+                                "tvshows"),
+
+                        EpisodeCount =
+                            group
+                                .Select(x =>
+                                    x.EpisodeId)
+                                .Distinct()
+                                .Count()
+                    };
+                });
+
+        filmography.AddRange(
+            tvShowCredits);
+
+        return filmography
+            .OrderByDescending(x =>
+                x.ReleaseYear)
+            .ThenBy(x =>
+                x.Title)
+            .ToList();
+    }
+
+    private string? BuildPosterUrl(
+        string? fileName,
+        string folder)
+    {
+        if (string.IsNullOrWhiteSpace(
+                fileName))
+            return null;
+
+        var relativeUrl =
+            $"/images/{folder}/{fileName}";
+
+        var request =
+            httpContextAccessor
+                .HttpContext?
+                .Request;
+
+        if (request is null)
+            return relativeUrl;
+
+        return
+            $"{request.Scheme}://{request.Host}{relativeUrl}";
     }
 
     private string GetImageFolderPath()

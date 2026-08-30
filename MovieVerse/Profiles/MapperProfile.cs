@@ -1158,5 +1158,16 @@ public class MapperProfile : Profile
                     src.User.Profile != null
                         ? src.User.Profile.DisplayName
                         : null));
+        CreateMap<Actor, ActorDetailsDto>()
+            .IncludeBase<Actor, ActorReturnDto>()
+            .ForMember(
+                dest => dest.Filmography,
+                opt => opt.Ignore());
+
+        CreateMap<Director, DirectorDetailsDto>()
+            .IncludeBase<Director, DirectorReturnDto>()
+            .ForMember(
+                dest => dest.Filmography,
+                opt => opt.Ignore());
     }
 }

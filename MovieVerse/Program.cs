@@ -22,6 +22,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "Frontend",
+        policy =>
+        {
+            policy
+                .WithOrigins(
+                    "http://localhost:5500",
+                    "http://127.0.0.1:5500")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -168,6 +182,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
+app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();

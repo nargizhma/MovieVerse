@@ -1,6 +1,11 @@
 @MovieVerse_HostAddress = http://localhost:5033
 
+GET {{MovieVerse_HostAddress}}/api/movies
+Accept: application/json
 
+###
+
+GET {{MovieVerse_HostAddress}}/api/tvshows
 Accept: application/json
 
 ###

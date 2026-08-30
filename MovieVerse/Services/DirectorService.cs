@@ -127,6 +127,19 @@ public class DirectorService(
             throw new NotFoundException(
                 "Director was not found.");
 
+        var isUsed =
+            await movieDirectorRepository.Query()
+                .AnyAsync(x =>
+                    x.DirectorId == id)
+            ||
+            await episodeDirectorRepository.Query()
+                .AnyAsync(x =>
+                    x.DirectorId == id);
+
+        if (isUsed)
+            throw new ConflictException(
+                "Director cannot be deleted because they are used in existing titles.");
+
         var imageName =
             director.ProfileImageUrl;
 

@@ -14,6 +14,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         var statusCode = exception switch
         {
             AlreadyExistsException => StatusCodes.Status409Conflict,
+            ConflictException => StatusCodes.Status409Conflict,
             NotFoundException => StatusCodes.Status404NotFound,
             BadRequestException => StatusCodes.Status400BadRequest,
             UnauthorizedException => StatusCodes.Status401Unauthorized,
@@ -22,6 +23,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         var title = exception switch
         {
             AlreadyExistsException => "Conflict",
+            ConflictException => "Conflict",
             NotFoundException => "Not Found",
             BadRequestException => "Bad Request",
             UnauthorizedException => "Unauthorized",

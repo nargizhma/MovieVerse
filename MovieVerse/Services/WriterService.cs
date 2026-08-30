@@ -11,6 +11,8 @@ namespace MovieVerse.Services;
 
 public class WriterService(
     IGenericRepository<Writer> repository,
+    IGenericRepository<MovieWriter> movieWriterRepository,
+    IGenericRepository<EpisodeWriter> episodeWriterRepository,
     IMapper mapper,
     IWebHostEnvironment environment)
     : IWriterService
@@ -113,6 +115,19 @@ public class WriterService(
         if (writer is null)
             throw new NotFoundException(
                 "Writer was not found.");
+
+        var isUsed =
+            await movieWriterRepository.Query()
+                .AnyAsync(x =>
+                    x.WriterId == id)
+            ||
+            await episodeWriterRepository.Query()
+                .AnyAsync(x =>
+                    x.WriterId == id);
+
+        if (isUsed)
+            throw new ConflictException(
+                "Writer cannot be deleted because they are used in existing titles.");
 
         var imageName =
             writer.ProfileImageUrl;

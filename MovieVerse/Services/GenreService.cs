@@ -77,12 +77,26 @@ public class GenreService(
 
     public async Task DeleteAsync(Guid id)
     {
-        var genre = await repository.GetByIdAsync(id);
+        var genre =
+            await repository.GetByIdAsync(id);
 
         if (genre is null)
-            throw new NotFoundException("Genre was not found.");
+            throw new NotFoundException(
+                "Genre was not found.");
+
+        var isUsed =
+            await repository.Query()
+                .AnyAsync(x =>
+                    x.Id == id &&
+                    (x.MovieGenres.Any() ||
+                     x.TVShowGenres.Any()));
+
+        if (isUsed)
+            throw new ConflictException(
+                "Genre cannot be deleted because it is used by existing titles.");
 
         repository.Delete(genre);
+
         await repository.SaveChangesAsync();
     }
 }

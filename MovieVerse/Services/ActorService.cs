@@ -125,6 +125,20 @@ public class ActorService(
             throw new NotFoundException(
                 "Actor was not found.");
 
+        var isUsed =
+            await movieActorRepository.Query()
+                .AnyAsync(x => x.ActorId == id)
+            ||
+            await tvShowActorRepository.Query()
+                .AnyAsync(x => x.ActorId == id)
+            ||
+            await episodeActorRepository.Query()
+                .AnyAsync(x => x.ActorId == id);
+
+        if (isUsed)
+            throw new ConflictException(
+                "Actor cannot be deleted because they are used in existing titles.");
+
         var imageName =
             actor.ProfileImageUrl;
 

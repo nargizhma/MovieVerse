@@ -62,6 +62,9 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IWatchlistService,
     WatchlistService>();
+builder.Services.AddScoped<
+    IMovieRecommendationService,
+    MovieRecommendationService>();
 
 builder.Services.AddScoped<
     IWatchHistoryService,

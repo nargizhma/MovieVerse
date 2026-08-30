@@ -71,6 +71,10 @@ builder.Services.AddScoped<
     WatchHistoryService>();
 
 builder.Services.AddScoped<
+    IUserProfileService,
+    UserProfileService>();
+
+builder.Services.AddScoped<
     ISeasonService,
     SeasonService>();
 builder.Services.AddScoped<

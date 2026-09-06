@@ -1,12 +1,33 @@
 window.MV = window.MV || {};
 
 class MVApiError extends Error {
-  constructor({ status = 0, title = "Request failed", detail = "", data = null, url = "" } = {}) {
-    super(detail || title || "Request failed");
+  constructor({
+    status = 0,
+    title = "Request failed",
+    detail = "",
+    messages = [],
+    data = null,
+    url = ""
+  } = {}) {
+    const cleanMessages = [...new Set(
+      (messages || [])
+        .map(message => String(message ?? "").trim())
+        .filter(Boolean)
+    )];
+
+    const finalDetail =
+      String(detail ?? "").trim() ||
+      cleanMessages[0] ||
+      String(title ?? "").trim() ||
+      "Request failed";
+
+    super(finalDetail);
+
     this.name = "MVApiError";
     this.status = status;
-    this.title = title;
-    this.detail = detail || title;
+    this.title = title || "Request failed";
+    this.detail = finalDetail;
+    this.messages = cleanMessages.length ? cleanMessages : [finalDetail];
     this.data = data;
     this.url = url;
   }
@@ -23,10 +44,18 @@ MV.api = (() => {
 
     if (query) {
       Object.entries(query).forEach(([key, value]) => {
-        if (value === undefined || value === null || value === "") return;
+        if (
+          value === undefined ||
+          value === null ||
+          value === ""
+        ) {
+          return;
+        }
 
         if (Array.isArray(value)) {
-          value.forEach(item => url.searchParams.append(key, item));
+          value.forEach(item =>
+            url.searchParams.append(key, item)
+          );
         } else {
           url.searchParams.set(key, value);
         }
@@ -36,11 +65,90 @@ MV.api = (() => {
     return url.toString();
   }
 
-  async function readResponseBody(response) {
-    const contentType = (response.headers.get("content-type") || "").toLowerCase();
-    const isJson = contentType.includes("application/json") || contentType.includes("+json");
+  function uniqueMessages(messages) {
+    return [...new Set(
+      messages
+        .map(message => String(message ?? "").trim())
+        .filter(Boolean)
+    )];
+  }
 
-    if (isJson) {
+  function collectMessages(value, messages) {
+    if (value === null || value === undefined) return;
+
+    if (typeof value === "string") {
+      if (value.trim()) messages.push(value.trim());
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach(item => collectMessages(item, messages));
+      return;
+    }
+
+    if (typeof value !== "object") return;
+
+    if (typeof value.description === "string") {
+      collectMessages(value.description, messages);
+    }
+
+    if (typeof value.message === "string") {
+      collectMessages(value.message, messages);
+    }
+
+    if (typeof value.detail === "string") {
+      collectMessages(value.detail, messages);
+    }
+
+    if (value.errors !== undefined) {
+      if (
+        value.errors &&
+        typeof value.errors === "object" &&
+        !Array.isArray(value.errors)
+      ) {
+        Object.values(value.errors).forEach(errorValue =>
+          collectMessages(errorValue, messages)
+        );
+      } else {
+        collectMessages(value.errors, messages);
+      }
+    }
+  }
+
+  function extractErrorMessages(data, fallback = "Request failed.") {
+    const messages = [];
+
+    collectMessages(data, messages);
+
+    const specific = uniqueMessages(messages);
+
+    // ASP.NET ValidationProblemDetails often gives a generic title plus
+    // useful messages in "errors". Prefer the useful messages.
+    if (specific.length) return specific;
+
+    if (
+      data &&
+      typeof data === "object" &&
+      typeof data.title === "string" &&
+      data.title.trim() &&
+      data.title.trim() !== "One or more validation errors occurred."
+    ) {
+      return [data.title.trim()];
+    }
+
+    if (typeof data === "string" && data.trim()) {
+      return [data.trim()];
+    }
+
+    return [fallback];
+  }
+
+  async function readResponseBody(response) {
+    const contentType =
+      response.headers.get("content-type") || "";
+
+    // Handles both application/json and application/problem+json.
+    if (contentType.toLowerCase().includes("json")) {
       try {
         return await response.json();
       } catch {
@@ -48,82 +156,27 @@ MV.api = (() => {
       }
     }
 
-    const text = await response.text();
-    if (!text) return null;
-
-    // Some APIs/proxies return JSON with the wrong content type.
     try {
-      return JSON.parse(text);
+      const text = await response.text();
+      if (!text) return null;
+
+      // Some servers/proxies return JSON with a wrong/missing content type.
+      try {
+        return JSON.parse(text);
+      } catch {
+        return text;
+      }
     } catch {
-      return text;
+      return null;
     }
-  }
-
-  function validationMessages(errors) {
-    if (!errors || typeof errors !== "object") return [];
-
-    const messages = [];
-
-    Object.values(errors).forEach(value => {
-      const values = Array.isArray(value) ? value : [value];
-
-      values.forEach(message => {
-        if (typeof message === "string" && message.trim()) {
-          messages.push(message.trim());
-        }
-      });
-    });
-
-    return [...new Set(messages)];
-  }
-
-  function getErrorDetail(data, fallback) {
-    if (!data) return fallback;
-
-    if (typeof data === "string") {
-      return data.trim() || fallback;
-    }
-
-    // ASP.NET ValidationProblemDetails stores the useful validation messages
-    // in the "errors" object rather than in "detail".
-    const validation = validationMessages(data.errors);
-    if (validation.length) {
-      return validation.join(" ");
-    }
-
-    if (typeof data.detail === "string" && data.detail.trim()) {
-      return data.detail.trim();
-    }
-
-    if (typeof data.message === "string" && data.message.trim()) {
-      return data.message.trim();
-    }
-
-    const genericTitles = new Set([
-      "bad request",
-      "unauthorized",
-      "forbidden",
-      "not found",
-      "conflict",
-      "internal server error",
-      "one or more validation errors occurred."
-    ]);
-
-    if (
-      typeof data.title === "string" &&
-      data.title.trim() &&
-      !genericTitles.has(data.title.trim().toLowerCase())
-    ) {
-      return data.title.trim();
-    }
-
-    return fallback;
   }
 
   async function request(method, path, options = {}) {
     const url = buildUrl(path, options.query);
     const headers = new Headers(options.headers || {});
-    const token = MV.auth?.getToken?.() || localStorage.getItem(MV.config.TOKEN_KEY);
+    const token =
+      MV.auth?.getToken?.() ||
+      localStorage.getItem(MV.config.TOKEN_KEY);
 
     if (token && options.auth !== false) {
       headers.set("Authorization", `Bearer ${token}`);
@@ -158,7 +211,9 @@ MV.api = (() => {
       throw new MVApiError({
         status: 0,
         title: "Network error",
-        detail: `Could not reach the MovieVerse API. Make sure the backend is running on ${MV.config.BACKEND_ORIGIN}.`,
+        detail:
+          `Could not reach the MovieVerse API. ` +
+          `Make sure the backend is running on ${MV.config.BACKEND_ORIGIN}.`,
         url
       });
     }
@@ -169,18 +224,28 @@ MV.api = (() => {
 
     if (!response.ok) {
       const fallback = {
-        400: "The request was not valid. Check the entered information and try again.",
+        400: "The submitted data is invalid.",
         401: "Authentication is required.",
         403: "You do not have permission to perform this action.",
         404: "The requested item was not found.",
         409: "This action conflicts with existing data.",
         500: "The server could not complete the request."
-      }[response.status] || `Request failed with status ${response.status}.`;
+      }[response.status] ||
+        `Request failed with status ${response.status}.`;
+
+      const messages = extractErrorMessages(data, fallback);
 
       const error = new MVApiError({
         status: response.status,
-        title: data?.title || response.statusText || "Request failed",
-        detail: getErrorDetail(data, fallback),
+        title:
+          (data &&
+            typeof data === "object" &&
+            typeof data.title === "string" &&
+            data.title) ||
+          response.statusText ||
+          "Request failed",
+        detail: messages[0] || fallback,
+        messages,
         data,
         url
       });
@@ -202,10 +267,15 @@ MV.api = (() => {
 
   return {
     buildUrl,
+    extractErrorMessages,
     request,
-    get: (path, query, options = {}) => request("GET", path, { ...options, query }),
-    post: (path, body, options = {}) => request("POST", path, { ...options, body }),
-    put: (path, body, options = {}) => request("PUT", path, { ...options, body }),
-    delete: (path, options = {}) => request("DELETE", path, options)
+    get: (path, query, options = {}) =>
+      request("GET", path, { ...options, query }),
+    post: (path, body, options = {}) =>
+      request("POST", path, { ...options, body }),
+    put: (path, body, options = {}) =>
+      request("PUT", path, { ...options, body }),
+    delete: (path, options = {}) =>
+      request("DELETE", path, options)
   };
 })();

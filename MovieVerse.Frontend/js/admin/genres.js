@@ -1,59 +1,104 @@
 document.addEventListener("DOMContentLoaded", async () => {
   if (!MV.auth.isAdmin()) return;
 
-  const host = document.getElementById("genresList");
-  const form = document.getElementById("genreForm");
-  const input = form.elements.Name;
+  const host =
+    document.getElementById(
+      "genresList"
+    );
+
+  const form =
+    document.getElementById(
+      "genreForm"
+    );
+
+  const input =
+    form.elements.Name;
+
+  const addButton =
+    document.getElementById(
+      "addGenre"
+    );
+
+  MV.ui.useBackendValidation(form);
+
   let genres = [];
 
   try {
-    genres = await MV.api.get("genres");
+    genres =
+      await MV.api.get("genres");
+
     render();
   } catch (err) {
-    host.innerHTML = MV.ui.emptyState({
-      icon: "fa-tags",
-      title: "Could not load genres",
-      text: err.detail || "Try again."
-    });
+    host.innerHTML =
+      MV.ui.emptyState({
+        icon: "fa-tags",
+        title:
+          "Could not load genres",
+        text:
+          err.detail ||
+          "Try again."
+      });
   }
 
-  $(form).validate({
-    rules: {
-      Name: { required: true, maxlength: 100 }
-    },
-    messages: {
-      Name: {
-        required: "Genre name is required.",
-        maxlength: "Genre name cannot exceed 100 characters."
-      }
-    },
-    submitHandler: async () => {
+  form.addEventListener(
+    "submit",
+    async event => {
+      event.preventDefault();
+
       MV.ui.clearFormError(form);
 
-      const button = document.getElementById("addGenre");
-      MV.ui.buttonBusy(button, true, "Adding…");
+      MV.ui.buttonBusy(
+        addButton,
+        true,
+        "Adding…"
+      );
 
       try {
-        await MV.api.post("genres", { name: input.value.trim() });
-        MV.ui.toast("Genre created", "success");
+        await MV.api.post(
+          "genres",
+          {
+            name:
+              input.value.trim()
+          }
+        );
+
+        MV.ui.toast(
+          "Genre created",
+          "success"
+        );
+
         input.value = "";
-        MV.ui.clearFormError(form);
-        genres = await MV.api.get("genres");
+
+        genres =
+          await MV.api.get(
+            "genres"
+          );
+
         render();
       } catch (err) {
-        MV.ui.showFormError(form, err, "Genre could not be created.");
+        MV.ui.showFormError(
+          form,
+          err,
+          "Genre could not be created."
+        );
       } finally {
-        MV.ui.buttonBusy(button, false);
+        MV.ui.buttonBusy(
+          addButton,
+          false
+        );
       }
     }
-  });
+  );
 
   function render() {
     if (!genres.length) {
-      host.innerHTML = MV.ui.emptyState({
-        icon: "fa-tags",
-        title: "No genres yet"
-      });
+      host.innerHTML =
+        MV.ui.emptyState({
+          icon: "fa-tags",
+          title:
+            "No genres yet"
+        });
+
       return;
     }
 
@@ -68,65 +113,120 @@ document.addEventListener("DOMContentLoaded", async () => {
           </thead>
           <tbody>
             ${genres
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map(genre => `
-                <tr data-id="${genre.id}">
-                  <td>
-                    <input class="form-control form-control-sm js-name" maxlength="100" value="${MV.ui.escapeHtml(genre.name)}">
-                  </td>
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary js-save">Save</button>
-                    <button class="btn btn-sm btn-outline-danger js-delete">Delete</button>
-                  </td>
-                </tr>`)
+              .map(
+                genre => `
+                  <tr data-id="${genre.id}">
+                    <td>
+                      <input class="form-control form-control-sm js-name" value="${MV.ui.escapeHtml(genre.name)}">
+                      <div class="js-row-error mt-2"></div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-primary js-save">Save</button>
+                      <button class="btn btn-sm btn-outline-danger js-delete">Delete</button>
+                    </td>
+                  </tr>`
+              )
               .join("")}
           </tbody>
         </table>
       </div>`;
 
-    host.querySelectorAll("tr[data-id]").forEach(row => {
-      row.querySelector(".js-save").addEventListener("click", () => save(row));
-      row.querySelector(".js-delete").addEventListener("click", () => del(row));
-    });
+    host
+      .querySelectorAll("tr[data-id]")
+      .forEach(row => {
+        row
+          .querySelector(".js-save")
+          .addEventListener(
+            "click",
+            () => save(row)
+          );
+
+        row
+          .querySelector(".js-delete")
+          .addEventListener(
+            "click",
+            () => del(row)
+          );
+      });
   }
 
   async function save(row) {
-    const name = row.querySelector(".js-name").value.trim();
+    const nameInput =
+      row.querySelector(
+        ".js-name"
+      );
 
-    if (!name) {
-      MV.ui.toast("Genre name is required.", "warning");
-      return;
-    }
+    const errorHost =
+      row.querySelector(
+        ".js-row-error"
+      );
 
-    if (name.length > 100) {
-      MV.ui.toast("Genre name cannot exceed 100 characters.", "warning");
-      return;
-    }
+    MV.ui.clearInlineError(
+      errorHost
+    );
 
     try {
-      await MV.api.put(`genres/${row.dataset.id}`, { name });
-      MV.ui.toast("Genre updated", "success");
-      genres = await MV.api.get("genres");
+      await MV.api.put(
+        `genres/${row.dataset.id}`,
+        {
+          name:
+            nameInput.value.trim()
+        }
+      );
+
+      MV.ui.toast(
+        "Genre updated",
+        "success"
+      );
+
+      genres =
+        await MV.api.get(
+          "genres"
+        );
+
       render();
     } catch (err) {
-      MV.ui.showError(err);
+      MV.ui.showInlineError(
+        errorHost,
+        err,
+        "Genre could not be updated."
+      );
     }
   }
 
   async function del(row) {
-    const name = row.querySelector(".js-name").value;
-    const ok = await MV.ui.confirm({
-      title: "Delete genre?",
-      message: `Delete “${name}”?`,
-      confirmText: "Delete genre"
-    });
+    const name =
+      row.querySelector(
+        ".js-name"
+      ).value;
+
+    const ok =
+      await MV.ui.confirm({
+        title:
+          "Delete genre?",
+        message:
+          `Delete “${name}”?`,
+        confirmText:
+          "Delete genre"
+      });
 
     if (!ok) return;
 
     try {
-      await MV.api.delete(`genres/${row.dataset.id}`);
-      MV.ui.toast("Genre deleted", "success");
-      genres = await MV.api.get("genres");
+      await MV.api.delete(
+        `genres/${row.dataset.id}`
+      );
+
+      MV.ui.toast(
+        "Genre deleted",
+        "success"
+      );
+
+      genres =
+        await MV.api.get(
+          "genres"
+        );
+
       render();
     } catch (err) {
       MV.ui.showError(err);

@@ -13,13 +13,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   let genres=[],actors=[],directors=[];
   try { [genres,actors,directors]=await Promise.all([MV.api.get("genres",null,{auth:false}),MV.api.get("actors",null,{auth:false}),MV.api.get("directors",null,{auth:false})]); } catch(err){ MV.ui.showError(err); }
   renderFilters("filterBarDesktop",false); renderFilters("filterBarMobile",true); syncControls();
-  document.querySelectorAll(".js-filter-form").forEach(form=>form.addEventListener("submit",applyFilters));
+  document.querySelectorAll(".js-filter-form").forEach(form=>{MV.ui.useBackendValidation(form);form.addEventListener("submit",applyFilters);});
   document.querySelectorAll(".js-clear-filters").forEach(btn=>btn.addEventListener("click",()=>location.href="search.html"));
   await loadResults();
 
   function renderFilters(hostId,mobile){
     const host=document.getElementById(hostId); if(!host)return;
-    host.innerHTML=`<form class="js-filter-form ${mobile?"d-grid gap-3":"mv-filter-row"}">
+    host.innerHTML=`<form class="js-filter-form ${mobile?"d-grid gap-3":"mv-filter-row"}" novalidate>
       <div><label class="form-label">Content</label><select class="form-select form-select-sm" name="type"><option>All</option><option value="Movie">Movies</option><option value="TVShow">TV Shows</option></select></div>
       <div><label class="form-label">Genre</label><select class="form-select form-select-sm" name="genreId"><option value="">All genres</option>${genres.map(g=>`<option value="${g.id}">${MV.ui.escapeHtml(g.name)}</option>`).join("")}</select></div>
       <div><label class="form-label">Year</label><input class="form-control form-control-sm" name="year" type="number" min="1888" max="2100" placeholder="Any"></div>

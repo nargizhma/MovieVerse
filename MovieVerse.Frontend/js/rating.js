@@ -10,6 +10,7 @@ MV.rating = (() => {
         <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
           <div class="modal-header"><div><div class="mv-kicker">Rate this title</div><h5 class="modal-title" id="mvRatingTitle">Your rating</h5></div><button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
           <div class="modal-body">
+            <div id="mvRatingError"></div>
             <div class="mv-rating-value"><span id="mvRatingNumber">8.0</span> <span class="text-secondary fs-5">/ 10</span></div>
             <div class="mv-rating-stars-scroll"><div id="mvRatingStars" class="mv-rating-stars" tabindex="0" role="slider" aria-label="Rating from 1 to 10" aria-valuemin="1" aria-valuemax="10" aria-valuenow="8.0"></div></div>
             <p class="text-center text-secondary mb-0">Move across the stars for one-decimal precision, then click or tap to choose.</p>
@@ -63,6 +64,7 @@ MV.rating = (() => {
     let existing = null;
     try { existing = await MV.reviews.getMine(type,id); } catch(err){ MV.ui.showError(err); return; }
     state = { type,id,title,onSaved,existing,value:Number(existing?.rating ?? 8) };
+    MV.ui.clearInlineError(document.getElementById("mvRatingError"));
     document.getElementById("mvRatingTitle").textContent = title || "Your rating";
     document.getElementById("mvRemoveRating").classList.toggle("d-none",!existing);
     renderValue(state.value);
@@ -76,7 +78,7 @@ MV.rating = (() => {
       try {
         await MV.reviews.save(type,id,state.value,existing?.content ?? null,existing);
         MV.ui.toast("Rating saved","success"); modal.hide(); if(onSaved) await onSaved(state.value);
-      } catch(err){ MV.ui.showError(err); } finally { MV.ui.buttonBusy(saveBtn,false); }
+      } catch(err){ MV.ui.showInlineError(document.getElementById("mvRatingError"),err,"Rating could not be saved."); } finally { MV.ui.buttonBusy(saveBtn,false); }
     };
     const remove = async () => {
       const suffix = existing?.content ? " This will also remove your written review." : "";

@@ -62,16 +62,47 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function refreshCounts(){try{profile=await MV.api.get("profiles/me");renderOverview();}catch{}}
 
   function renderEdit(){
-    const host=document.getElementById("profileEdit");host.innerHTML=`<form id="profileEditForm" class="row g-3" enctype="multipart/form-data"><div class="col-md-6"><label class="form-label" for="profileDisplayName">Display name</label><input class="form-control" id="profileDisplayName" name="DisplayName" maxlength="50" value="${MV.ui.escapeHtml(MV.ui.optionalText(profile.displayName))}"></div><div class="col-12"><label class="form-label" for="profileBio">Bio</label><textarea class="form-control" id="profileBio" name="Bio" maxlength="500" rows="5">${MV.ui.escapeHtml(MV.ui.optionalText(profile.bio))}</textarea></div><div class="col-md-7"><label class="form-label" for="profileImageInput">Profile image</label><input class="form-control" id="profileImageInput" name="ProfileImage" type="file" accept="image/*"><div class="form-text text-secondary">Image files only, maximum 5 MB.</div></div><div class="col-md-5"><img id="profileEditPreview" class="mv-image-preview mv-profile-edit-preview" src="${MV.media.profileImageUrl(profile.profileImageUrl)}" ${MV.media.imageFallbackAttributes("people")} alt="Profile image preview"></div><div class="col-12 d-flex flex-wrap gap-2"><button class="btn btn-primary" id="saveProfile" type="submit">Save profile</button>${MV.ui.hasOptionalText(profile.profileImageUrl)?'<button class="btn btn-outline-danger" id="deleteProfileImage" type="button">Remove profile image</button>':""}</div></form>`;
-    const input=document.getElementById("profileImageInput");input.addEventListener("change",()=>{const f=input.files?.[0];if(f){if(!validateImage(f)){input.value="";return;}const preview=document.getElementById("profileEditPreview");delete preview.dataset.mvFallbackApplied;preview.src=URL.createObjectURL(f);}});
+    const host=document.getElementById("profileEdit");
+    host.innerHTML=`<form id="profileEditForm" class="row g-3" enctype="multipart/form-data" novalidate><div class="col-md-6"><label class="form-label" for="profileDisplayName">Display name</label><input class="form-control" id="profileDisplayName" name="DisplayName" value="${MV.ui.escapeHtml(MV.ui.optionalText(profile.displayName))}"></div><div class="col-12"><label class="form-label" for="profileBio">Bio</label><textarea class="form-control" id="profileBio" name="Bio" rows="5">${MV.ui.escapeHtml(MV.ui.optionalText(profile.bio))}</textarea></div><div class="col-md-7"><label class="form-label" for="profileImageInput">Profile image</label><input class="form-control" id="profileImageInput" name="ProfileImage" type="file" accept="image/*"><div class="form-text text-secondary">Image files only, maximum 5 MB. The backend validates the file.</div></div><div class="col-md-5"><img id="profileEditPreview" class="mv-image-preview mv-profile-edit-preview" src="${MV.media.profileImageUrl(profile.profileImageUrl)}" ${MV.media.imageFallbackAttributes("people")} alt="Profile image preview"></div><div class="col-12 d-flex flex-wrap gap-2"><button class="btn btn-primary" id="saveProfile" type="submit">Save profile</button>${MV.ui.hasOptionalText(profile.profileImageUrl)?'<button class="btn btn-outline-danger" id="deleteProfileImage" type="button">Remove profile image</button>':""}</div></form>`;
+
+    const input=document.getElementById("profileImageInput");
+    input.addEventListener("change",()=>{
+      const file=input.files?.[0];
+      if(!file)return;
+      if(file.type?.startsWith("image/")){
+        const preview=document.getElementById("profileEditPreview");
+        delete preview.dataset.mvFallbackApplied;
+        preview.src=URL.createObjectURL(file);
+      }
+    });
+
     const editForm=document.getElementById("profileEditForm");
-    if(window.jQuery?.fn?.validate){
-      $(editForm).validate({rules:{DisplayName:{maxlength:50},Bio:{maxlength:500}},messages:{DisplayName:{maxlength:"Display name cannot exceed 50 characters."},Bio:{maxlength:"Bio cannot exceed 500 characters."}},submitHandler:formEl=>saveProfile(formEl)});
-    }else{ editForm.addEventListener("submit",saveProfile); }
+    MV.ui.useBackendValidation(editForm);
+    editForm.addEventListener("submit",saveProfile);
     document.getElementById("deleteProfileImage")?.addEventListener("click",deleteImage);
   }
-  function validateImage(file){if(!file.type.startsWith("image/")){MV.ui.toast("Please choose an image file.","warning");return false;}if(file.size>5*1024*1024){MV.ui.toast("Profile image cannot exceed 5 MB.","warning");return false;}return true;}
-  async function saveProfile(eventOrForm){eventOrForm.preventDefault?.();const btn=document.getElementById("saveProfile"),form=eventOrForm.currentTarget||eventOrForm,fd=new FormData(form);MV.ui.buttonBusy(btn,true,"Saving…");try{await MV.api.put("profiles/me",fd);MV.ui.toast("Profile updated","success");profile=await MV.api.get("profiles/me");renderShell();renderAll();activateHash();}catch(err){MV.ui.showError(err);}finally{MV.ui.buttonBusy(btn,false);}}
+
+  async function saveProfile(event){
+    event.preventDefault();
+    const btn=document.getElementById("saveProfile");
+    const form=event.currentTarget;
+    MV.ui.clearFormError(form);
+    const fd=new FormData(form);
+    MV.ui.buttonBusy(btn,true,"Saving…");
+    try{
+      await MV.api.put("profiles/me",fd);
+      MV.ui.toast("Profile updated","success");
+      profile=await MV.api.get("profiles/me");
+      renderShell();
+      renderAll();
+      activateHash();
+    }catch(err){
+      MV.ui.showFormError(form,err,"Profile could not be updated.");
+    }finally{
+      MV.ui.buttonBusy(btn,false);
+    }
+  }
+
   async function deleteImage(){const ok=await MV.ui.confirm({title:"Remove profile image?",message:"Your current profile image will be deleted.",confirmText:"Remove image"});if(!ok)return;try{await MV.api.delete("profiles/me/image");MV.ui.toast("Profile image removed","success");profile=await MV.api.get("profiles/me");renderShell();renderAll();activateHash();}catch(err){MV.ui.showError(err);}}
   function activateHash(){const target=(location.hash||"#overview").slice(1);const button=document.querySelector(`[data-tab="${CSS.escape(target)}"]`);if(button)bootstrap.Tab.getOrCreateInstance(button).show();}
 });

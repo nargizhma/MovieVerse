@@ -2,34 +2,56 @@ window.MV = window.MV || {};
 
 MV.ui = (() => {
   const $id = id => document.getElementById(id);
-  const qs = (selector, root = document) => root.querySelector(selector);
-  const qsa = (selector, root = document) => [...root.querySelectorAll(selector)];
-  const escapeHtml = value => String(value ?? "").replace(/[&<>'"]/g, ch => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "'": "&#39;",
-    '"': "&quot;"
-  }[ch]));
+  const qs = (selector, root = document) =>
+    root.querySelector(selector);
+  const qsa = (selector, root = document) =>
+    [...root.querySelectorAll(selector)];
+
+  const escapeHtml = value =>
+    String(value ?? "").replace(
+      /[&<>'"]/g,
+      ch =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;"
+        })[ch]
+    );
+
   const debounce = (fn, wait = 300) => {
-    let t;
+    let timer;
+
     return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), wait);
+      clearTimeout(timer);
+      timer = setTimeout(
+        () => fn(...args),
+        wait
+      );
     };
   };
 
   function optionalText(value) {
-    if (value === null || value === undefined) return "";
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
 
     const text = String(value).trim();
+
     if (!text) return "";
 
-    // Swagger/OpenAPI examples often use the literal value "string".
-    // Treat those placeholder-like values as missing only when a page asks
-    // for optional content through this helper.
     const normalized = text.toLowerCase();
-    if (["string", "null", "undefined"].includes(normalized)) return "";
+
+    if (
+      ["string", "null", "undefined"]
+        .includes(normalized)
+    ) {
+      return "";
+    }
 
     return text;
   }
@@ -47,7 +69,9 @@ MV.ui = (() => {
     }
 
     if (!$id("mvConfirmModal")) {
-      document.body.insertAdjacentHTML("beforeend", `
+      document.body.insertAdjacentHTML(
+        "beforeend",
+        `
         <div class="modal fade" id="mvConfirmModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -62,7 +86,8 @@ MV.ui = (() => {
               </div>
             </div>
           </div>
-        </div>`);
+        </div>`
+      );
     }
   }
 
@@ -76,9 +101,13 @@ MV.ui = (() => {
       info: "fa-circle-info"
     };
 
-    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const id =
+      `toast-${Date.now()}-` +
+      Math.random().toString(36).slice(2);
 
-    $id("mvToastContainer").insertAdjacentHTML("beforeend", `
+    $id("mvToastContainer").insertAdjacentHTML(
+      "beforeend",
+      `
       <div id="${id}" class="toast" role="status" aria-live="polite" aria-atomic="true">
         <div class="toast-header bg-transparent text-light border-0">
           <i class="fa-solid ${icons[type] || icons.info} me-2"></i>
@@ -86,213 +115,473 @@ MV.ui = (() => {
           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body pt-0">${escapeHtml(message)}</div>
-      </div>`);
+      </div>`
+    );
 
-    const el = $id(id);
-    const instance = bootstrap.Toast.getOrCreateInstance(el, { delay: 3400 });
+    const element = $id(id);
+    const instance =
+      bootstrap.Toast.getOrCreateInstance(
+        element,
+        { delay: 5000 }
+      );
 
-    el.addEventListener("hidden.bs.toast", () => el.remove(), { once: true });
+    element.addEventListener(
+      "hidden.bs.toast",
+      () => element.remove(),
+      { once: true }
+    );
+
     instance.show();
   }
 
-  function showError(error, fallback = "Could not complete the request.") {
-    const message = error?.detail || error?.message || fallback;
-    toast(message, "danger");
+  function errorMessages(
+    error,
+    fallback = "Could not complete the request."
+  ) {
+    if (
+      Array.isArray(error?.messages) &&
+      error.messages.length
+    ) {
+      return [...new Set(
+        error.messages
+          .map(message =>
+            String(message ?? "").trim()
+          )
+          .filter(Boolean)
+      )];
+    }
+
+    if (MV.api?.extractErrorMessages) {
+      const fromData =
+        MV.api.extractErrorMessages(
+          error?.data,
+          ""
+        ).filter(Boolean);
+
+      if (fromData.length) return fromData;
+    }
+
+    const message =
+      String(
+        error?.detail ||
+        error?.message ||
+        fallback
+      ).trim();
+
+    return [message || fallback];
   }
 
-  function errorMessages(error, fallback = "Could not complete the request.") {
-    const validationErrors = error?.data?.errors;
-    const validationMessages = [];
+  function showError(
+    error,
+    fallback = "Could not complete the request."
+  ) {
+    const messages =
+      errorMessages(error, fallback);
 
-    if (validationErrors && typeof validationErrors === "object") {
-      Object.values(validationErrors).forEach(value => {
-        const values = Array.isArray(value) ? value : [value];
-
-        values.forEach(message => {
-          if (typeof message === "string" && message.trim()) {
-            validationMessages.push(message.trim());
-          }
-        });
-      });
-    }
-
-    if (validationMessages.length) {
-      return [...new Set(validationMessages)];
-    }
-
-    if (typeof error?.detail === "string" && error.detail.trim()) {
-      return [error.detail.trim()];
-    }
-
-    if (typeof error?.message === "string" && error.message.trim()) {
-      return [error.message.trim()];
-    }
-
-    return [fallback];
+    toast(
+      messages.join(" • "),
+      "danger"
+    );
   }
 
-  function clearServerFieldErrors(form) {
-    if (!form) return;
-
-    form.querySelectorAll("[data-mv-server-invalid]").forEach(element => {
-      element.classList.remove("is-invalid");
-      delete element.dataset.mvServerInvalid;
-    });
-  }
-
-  function markServerFields(form, error) {
+  function validationEntries(error) {
     const errors = error?.data?.errors;
-    if (!form || !errors || typeof errors !== "object") return;
 
-    Object.keys(errors).forEach(key => {
-      // Handles keys such as "Title", "dto.Title" and "Actors[0].ActorId".
-      const cleanKey = String(key).replace(/\[\d+\]/g, "");
-      const fieldName = cleanKey.split(".").pop();
-      if (!fieldName) return;
+    if (
+      !errors ||
+      typeof errors !== "object" ||
+      Array.isArray(errors)
+    ) {
+      return [];
+    }
 
-      const field = form.elements.namedItem(fieldName);
-      if (!field || field instanceof RadioNodeList) return;
+    return Object.entries(errors)
+      .map(([key, value]) => {
+        const messages = Array.isArray(value)
+          ? value
+          : [value];
 
-      field.classList?.add("is-invalid");
-      if (field.dataset) field.dataset.mvServerInvalid = "true";
-    });
+        return {
+          key,
+          messages: messages
+            .map(message =>
+              String(message ?? "").trim()
+            )
+            .filter(Boolean)
+        };
+      })
+      .filter(entry =>
+        entry.messages.length
+      );
+  }
+
+  function findFieldForError(form, key) {
+    if (!form || !key) return null;
+
+    const raw =
+      String(key)
+        .replace(/^\$\./, "")
+        .replace(/\[(\d+)\]/g, "")
+        .split(".")
+        .filter(Boolean)
+        .pop();
+
+    if (!raw) return null;
+
+    return [...form.elements]
+      .find(element =>
+        element.name &&
+        element.name.toLowerCase() ===
+          raw.toLowerCase()
+      ) || null;
   }
 
   function clearFormError(form) {
     if (!form) return;
 
-    form.querySelector("[data-mv-form-error]")?.remove();
-    clearServerFieldErrors(form);
+    form
+      .querySelectorAll("[data-mv-form-error]")
+      .forEach(element => element.remove());
+
+    form
+      .querySelectorAll("[data-mv-server-invalid='true']")
+      .forEach(element => {
+        element.classList.remove(
+          "is-invalid"
+        );
+        delete element.dataset
+          .mvServerInvalid;
+      });
   }
 
-  function showFormError(form, error, heading = "Could not save changes.") {
+  function buildErrorAlert(
+    error,
+    heading,
+    compact = false
+  ) {
+    const messages = errorMessages(error);
+    const content =
+      messages.length === 1
+        ? `<div class="${heading ? "mt-1" : ""}">${escapeHtml(messages[0])}</div>`
+        : `
+          <ul class="mb-0 ${heading ? "mt-2" : ""} ps-3">
+            ${messages
+              .map(
+                message =>
+                  `<li>${escapeHtml(message)}</li>`
+              )
+              .join("")}
+          </ul>`;
+
+    return `
+      <div class="alert alert-danger ${compact ? "py-2" : ""}" role="alert">
+        ${
+          heading
+            ? `<div class="fw-semibold"><i class="fa-solid fa-circle-exclamation me-2"></i>${escapeHtml(heading)}</div>`
+            : ""
+        }
+        ${content}
+      </div>`;
+  }
+
+  function showFormError(
+    form,
+    error,
+    heading = "Could not save changes."
+  ) {
     if (!form) {
       showError(error);
       return;
     }
 
     clearFormError(form);
-    markServerFields(form, error);
 
-    const messages = errorMessages(error);
-    const box = document.createElement("div");
+    const wrapper =
+      document.createElement("div");
 
-    box.className = "alert alert-danger mb-4";
-    box.dataset.mvFormError = "true";
-    box.setAttribute("role", "alert");
+    wrapper.dataset.mvFormError = "";
+    wrapper.innerHTML =
+      buildErrorAlert(
+        error,
+        heading
+      );
 
-    const details = messages.length === 1
-      ? `<div class="mt-1">${escapeHtml(messages[0])}</div>`
-      : `<ul class="mb-0 mt-2 ps-3">${messages.map(message => `<li>${escapeHtml(message)}</li>`).join("")}</ul>`;
+    form.prepend(wrapper);
 
-    box.innerHTML = `
-      <div class="d-flex gap-3 align-items-start">
-        <i class="fa-solid fa-circle-exclamation mt-1" aria-hidden="true"></i>
-        <div>
-          <strong>${escapeHtml(heading)}</strong>
-          ${details}
-          <div class="small mt-2">
-            Your entered data has not been cleared. Fix the problem and press Save again.
-          </div>
-        </div>
-      </div>`;
+    validationEntries(error)
+      .forEach(entry => {
+        const field =
+          findFieldForError(
+            form,
+            entry.key
+          );
 
-    form.prepend(box);
+        if (!field) return;
 
-    box.scrollIntoView({
+        field.classList.add(
+          "is-invalid"
+        );
+
+        field.dataset
+          .mvServerInvalid = "true";
+      });
+
+    if (!form.dataset.mvErrorResetBound) {
+      form.dataset.mvErrorResetBound =
+        "true";
+
+      form.addEventListener(
+        "input",
+        event => {
+          const field = event.target;
+
+          if (
+            field instanceof HTMLElement &&
+            field.dataset
+              .mvServerInvalid === "true"
+          ) {
+            field.classList.remove(
+              "is-invalid"
+            );
+            delete field.dataset
+              .mvServerInvalid;
+          }
+        }
+      );
+    }
+
+    wrapper.scrollIntoView({
       behavior: "smooth",
       block: "center"
     });
   }
 
-  function confirm({ title = "Confirm action", message = "Are you sure?", confirmText = "Confirm", danger = true } = {}) {
+  function showInlineError(
+    host,
+    error,
+    heading = ""
+  ) {
+    if (!host) {
+      showError(error);
+      return;
+    }
+
+    host.innerHTML =
+      buildErrorAlert(
+        error,
+        heading,
+        true
+      );
+  }
+
+  function clearInlineError(host) {
+    if (host) host.innerHTML = "";
+  }
+
+  function useBackendValidation(form) {
+    if (!form) return form;
+
+    // Browser/jQuery rules must not stop the request before the API
+    // gets a chance to run the FluentValidation validators.
+    form.noValidate = true;
+    form.setAttribute(
+      "novalidate",
+      "novalidate"
+    );
+
+    try {
+      const validator =
+        window.jQuery &&
+        jQuery(form).data("validator");
+
+      validator?.destroy?.();
+    } catch {
+      // The page does not need jQuery Validation for backend validation.
+    }
+
+    return form;
+  }
+
+  function confirm({
+    title = "Confirm action",
+    message = "Are you sure?",
+    confirmText = "Confirm",
+    danger = true
+  } = {}) {
     ensureGlobalUi();
 
     return new Promise(resolve => {
-      const modalEl = $id("mvConfirmModal");
-      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      const modalElement =
+        $id("mvConfirmModal");
 
-      $id("mvConfirmTitle").textContent = title;
-      $id("mvConfirmBody").innerHTML = `<p class="mb-0">${escapeHtml(message)}</p>`;
+      const modal =
+        bootstrap.Modal.getOrCreateInstance(
+          modalElement
+        );
 
-      const ok = $id("mvConfirmOk");
-      ok.textContent = confirmText;
-      ok.className = `btn ${danger ? "btn-danger" : "btn-primary"}`;
+      $id("mvConfirmTitle").textContent =
+        title;
+
+      $id("mvConfirmBody").innerHTML =
+        `<p class="mb-0">${escapeHtml(message)}</p>`;
+
+      const ok =
+        $id("mvConfirmOk");
+
+      ok.textContent =
+        confirmText;
+
+      ok.className =
+        `btn ${danger
+          ? "btn-danger"
+          : "btn-primary"}`;
 
       let settled = false;
 
       const yes = () => {
         settled = true;
-        ok.removeEventListener("click", yes);
+        ok.removeEventListener(
+          "click",
+          yes
+        );
         modal.hide();
         resolve(true);
       };
 
-      ok.addEventListener("click", yes);
-      modalEl.addEventListener("hidden.bs.modal", () => {
-        ok.removeEventListener("click", yes);
-        if (!settled) resolve(false);
-      }, { once: true });
+      ok.addEventListener(
+        "click",
+        yes
+      );
+
+      modalElement.addEventListener(
+        "hidden.bs.modal",
+        () => {
+          ok.removeEventListener(
+            "click",
+            yes
+          );
+
+          if (!settled) resolve(false);
+        },
+        { once: true }
+      );
 
       modal.show();
     });
   }
 
-  function buttonBusy(button, busy, busyText = "Working…") {
+  function buttonBusy(
+    button,
+    busy,
+    busyText = "Working…"
+  ) {
     if (!button) return;
 
     if (busy) {
-      button.dataset.originalHtml = button.innerHTML;
+      button.dataset.originalHtml =
+        button.innerHTML;
+
       button.disabled = true;
-      button.innerHTML = `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>${escapeHtml(busyText)}`;
+
+      button.innerHTML =
+        `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>${escapeHtml(busyText)}`;
     } else {
       button.disabled = false;
 
-      if (button.dataset.originalHtml) {
-        button.innerHTML = button.dataset.originalHtml;
-        delete button.dataset.originalHtml;
+      if (
+        button.dataset.originalHtml
+      ) {
+        button.innerHTML =
+          button.dataset.originalHtml;
+
+        delete button.dataset
+          .originalHtml;
       }
     }
   }
 
-  function emptyState({ icon = "fa-film", title = "Nothing here yet", text = "", actionText = "", actionHref = "" } = {}) {
-    return `<div class="mv-empty"><i class="fa-solid ${icon}"></i><h4>${escapeHtml(title)}</h4>${text ? `<p>${escapeHtml(text)}</p>` : ""}${actionText && actionHref ? `<a class="btn btn-outline-primary" href="${escapeHtml(actionHref)}">${escapeHtml(actionText)}</a>` : ""}</div>`;
+  function emptyState({
+    icon = "fa-film",
+    title = "Nothing here yet",
+    text = "",
+    actionText = "",
+    actionHref = ""
+  } = {}) {
+    return `
+      <div class="mv-empty">
+        <i class="fa-solid ${icon}"></i>
+        <h4>${escapeHtml(title)}</h4>
+        ${text ? `<p>${escapeHtml(text)}</p>` : ""}
+        ${
+          actionText && actionHref
+            ? `<a class="btn btn-outline-primary" href="${escapeHtml(actionHref)}">${escapeHtml(actionText)}</a>`
+            : ""
+        }
+      </div>`;
   }
 
   function skeletonCards(count = 6) {
-    return Array.from({ length: count }, () => '<div class="mv-skeleton mv-skeleton-card"></div>').join("");
+    return Array.from(
+      { length: count },
+      () =>
+        '<div class="mv-skeleton mv-skeleton-card"></div>'
+    ).join("");
   }
 
   function skeletonLines(count = 5) {
     return Array.from(
       { length: count },
-      (_, i) => `<div class="mv-skeleton mv-skeleton-line" style="width:${88 - i * 7}%"></div>`
+      (_, index) =>
+        `<div class="mv-skeleton mv-skeleton-line" style="width:${88 - index * 7}%"></div>`
     ).join("");
   }
 
-  function setFlash(message, type = "success") {
-    sessionStorage.setItem(MV.config.FLASH_KEY, JSON.stringify({ message, type }));
+  function setFlash(
+    message,
+    type = "success"
+  ) {
+    sessionStorage.setItem(
+      MV.config.FLASH_KEY,
+      JSON.stringify({
+        message,
+        type
+      })
+    );
   }
 
   function consumeFlash() {
-    const raw = sessionStorage.getItem(MV.config.FLASH_KEY);
+    const raw =
+      sessionStorage.getItem(
+        MV.config.FLASH_KEY
+      );
+
     if (!raw) return;
 
-    sessionStorage.removeItem(MV.config.FLASH_KEY);
+    sessionStorage.removeItem(
+      MV.config.FLASH_KEY
+    );
 
     try {
       const flash = JSON.parse(raw);
-      toast(flash.message, flash.type);
+      toast(
+        flash.message,
+        flash.type
+      );
     } catch {
-      // Ignore malformed flash data.
+      // Ignore a malformed stale flash value.
     }
   }
 
   function getParam(name) {
-    return new URLSearchParams(location.search).get(name);
+    return new URLSearchParams(
+      location.search
+    ).get(name);
   }
 
-  function requireParam(name, redirect = "index.html") {
+  function requireParam(
+    name,
+    redirect = "index.html"
+  ) {
     const value = getParam(name);
 
     if (!value) {
@@ -303,28 +592,57 @@ MV.ui = (() => {
     return value;
   }
 
-  function setText(id, value, fallback = "") {
-    const el = $id(id);
-    if (el) el.textContent = value ?? fallback;
+  function setText(
+    id,
+    value,
+    fallback = ""
+  ) {
+    const element = $id(id);
+
+    if (element) {
+      element.textContent =
+        value ?? fallback;
+    }
   }
 
-  function visible(el, show = true) {
-    if (el) el.classList.toggle("d-none", !show);
+  function visible(
+    element,
+    show = true
+  ) {
+    if (element) {
+      element.classList.toggle(
+        "d-none",
+        !show
+      );
+    }
   }
 
   function safeHref(url) {
     try {
-      const parsed = new URL(url, location.href);
-      return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "#";
+      const parsed =
+        new URL(
+          url,
+          location.href
+        );
+
+      return [
+        "http:",
+        "https:"
+      ].includes(parsed.protocol)
+        ? parsed.href
+        : "#";
     } catch {
       return "#";
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    ensureGlobalUi();
-    consumeFlash();
-  });
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+      ensureGlobalUi();
+      consumeFlash();
+    }
+  );
 
   return {
     $id,
@@ -335,9 +653,13 @@ MV.ui = (() => {
     optionalText,
     hasOptionalText,
     toast,
+    errorMessages,
     showError,
     showFormError,
     clearFormError,
+    showInlineError,
+    clearInlineError,
+    useBackendValidation,
     confirm,
     buttonBusy,
     emptyState,

@@ -41,5 +41,19 @@ public class ActorUpdateDtoValidator
             .When(x =>
                 x.DeathDate.HasValue &&
                 x.BirthDate.HasValue);
+        RuleFor(x => x.BirthPlace)
+            .MaximumLength(200)
+            .WithMessage(
+                "Birth place cannot exceed 200 characters.");
+
+        RuleFor(x => x.DeathPlace)
+            .MaximumLength(200)
+            .WithMessage(
+                "Death place cannot exceed 200 characters.");
+
+        RuleFor(x => x.AlternativeName)
+            .MaximumLength(200)
+            .WithMessage(
+                "Alternative name cannot exceed 200 characters.");
     }
 }

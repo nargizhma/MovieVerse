@@ -32,16 +32,31 @@ public class WriterUpdateDtoValidator
             .WithMessage("Death date cannot be in the future.")
             .When(x => x.DeathDate.HasValue);
 
-        RuleFor(x => x)
-            .Must(x =>
-                !x.BirthDate.HasValue ||
-                !x.DeathDate.HasValue ||
-                x.DeathDate.Value > x.BirthDate.Value)
-            .WithMessage("Death date must be after birth date.");
+        RuleFor(x => x.DeathDate)
+            .GreaterThan(x => x.BirthDate)
+            .WithMessage(
+                "Death date must be after birth date.")
+            .When(x =>
+                x.DeathDate.HasValue &&
+                x.BirthDate.HasValue);
 
         RuleFor(x => x.HeightInMeters)
             .GreaterThan(0)
             .WithMessage("Height must be greater than 0.")
             .When(x => x.HeightInMeters.HasValue);
+        RuleFor(x => x.BirthPlace)
+            .MaximumLength(200)
+            .WithMessage(
+                "Birth place cannot exceed 200 characters.");
+
+        RuleFor(x => x.DeathPlace)
+            .MaximumLength(200)
+            .WithMessage(
+                "Death place cannot exceed 200 characters.");
+
+        RuleFor(x => x.AlternativeName)
+            .MaximumLength(200)
+            .WithMessage(
+                "Alternative name cannot exceed 200 characters.");
     }
 }

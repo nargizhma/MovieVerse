@@ -1,8 +1,5 @@
 -- MovieVerse demo seed data
--- Target: SQL Server / current final code(8) schema
--- Safe to run more than once: inserts use NOT EXISTS checks.
 -- Poster/Profile/Image URL values are intentionally left NULL.
--- Your backend stores image FILE NAMES, not external image URLs, so NULL lets your placeholders work.
 -- Identity users are NOT created here. Register users through the app so ASP.NET Identity creates valid password hashes/roles.
 -- Reviews/watchlist/history are added only when existing AspNetUsers are found.
 

@@ -17,5 +17,13 @@ public class DirectorDetailConfiguration : IEntityTypeConfiguration<DirectorDeta
         builder
             .Property(x => x.HeightInMeters)
             .HasPrecision(3, 2);
+        builder.Property(x => x.BirthPlace)
+            .HasMaxLength(200);
+
+        builder.Property(x => x.DeathPlace)
+            .HasMaxLength(200);
+
+        builder.Property(x => x.AlternativeName)
+            .HasMaxLength(200);
     }
 }

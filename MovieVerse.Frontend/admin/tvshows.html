@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b12">
+  <title>Manage TV Shows • MovieVerse</title>
+  <link rel="icon" type="image/png" href="../assets/images/logo-square.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="../css/variables.css" rel="stylesheet">
+  <link href="../css/main.css" rel="stylesheet">
+  <link href="../css/components.css" rel="stylesheet">
+  <link href="../css/pages.css" rel="stylesheet">
+  <link href="../css/responsive.css" rel="stylesheet">
+  <link href="../css/admin.css" rel="stylesheet">
+</head><body class="mv-admin-body" ><div class="mv-admin-shell"><aside id="adminSidebar" class="mv-admin-sidebar"></aside><div class="mv-admin-main"><header id="adminTopbar" class="mv-admin-topbar"></header><main class="mv-admin-content"><div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3"><div><div class="mv-kicker">Catalog</div><h1 class="h2 mv-page-title mb-0">TV Shows</h1></div><a class="btn btn-primary" href="tvshow-form.html"><i class="fa-solid fa-plus me-2"></i>Create TV Show</a></div><form id="tvAdminFilter" class="mv-surface p-3 row g-2 mb-3"><div class="col-lg-4"><label class="form-label">Search</label><input class="form-control" name="Search" placeholder="TV show title"></div><div class="col-lg-2 col-sm-6"><label class="form-label">Genre</label><select class="form-select" name="GenreId"><option value="">All genres</option></select></div><div class="col-lg-1 col-sm-6"><label class="form-label">Year</label><input class="form-control" name="ReleaseYear" type="number" min="1888" max="2100"></div><div class="col-lg-1 col-sm-6"><label class="form-label">Min rating</label><input class="form-control" name="MinRating" type="number" min="1" max="10" step="0.1"></div><div class="col-lg-2 col-sm-6"><label class="form-label">Sort</label><select class="form-select" name="SortBy"><option value="title">Title</option><option value="year">Year</option><option value="rating">Rating</option></select></div><div class="col-lg-1 col-sm-6"><label class="form-label">Direction</label><select class="form-select" name="SortDescending"><option value="false">Asc</option><option value="true">Desc</option></select></div><div class="col-lg-1 col-sm-6 d-grid align-items-end"><button class="btn btn-primary" type="submit" aria-label="Apply catalog filters"><i class="fa-solid fa-magnifying-glass"></i></button></div></form><div class="mv-surface p-2" id="tvshowsTable"></div><nav id="tvPagination" class="mt-3"></nav></main></div></div>  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/admin/admin-common.js"></script>
+  <script src="../js/admin/tvshows.js"></script>
+</body></html>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900" role="img" aria-label="No image available">
+  <rect width="600" height="900" fill="#111827"/>
+  <rect x="60" y="60" width="480" height="780" rx="30" fill="#172033" stroke="#283956" stroke-width="4"/>
+  <path d="M205 565h190V335H205z" fill="none" stroke="#4b6b9e" stroke-width="16"/>
+  <path d="M230 535l75-90 55 58 45-54" fill="none" stroke="#4b6b9e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="365" cy="397" r="24" fill="#4b6b9e"/>
+  <text x="300" y="650" text-anchor="middle" fill="#8ea6c9" font-family="Arial,sans-serif" font-size="32">MovieVerse</text>
+</svg>

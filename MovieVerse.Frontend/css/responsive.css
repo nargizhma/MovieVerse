@@ -1,0 +1,55 @@
+@media (max-width: 1199.98px) {
+  .mv-media-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .mv-top5 { grid-template-columns: repeat(5, minmax(145px,1fr)); overflow-x:auto; padding-bottom:.7rem; }
+  .mv-filter-row { grid-template-columns: repeat(4, minmax(140px,1fr)); }
+  .mv-detail-layout { grid-template-columns: 210px minmax(0,1fr); }
+  .mv-action-panel { grid-column: 1 / -1; display:grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap:.65rem; align-items:center; }
+}
+@media (max-width: 991.98px) {
+  :root { --navbar-height: 64px; }
+  .mv-navbar .navbar-collapse { padding-top:.7rem; }
+  .mv-search-shell { order: 4; flex-basis:100%; max-width:none; margin-top:.65rem; }
+  .mv-navbar .container-fluid { align-items:flex-start; }
+  .mv-brand img { width:145px; height:44px; }
+  .mv-media-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .mv-people-results { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .mv-stat-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .mv-auth-page { grid-template-columns:1fr; }
+  .mv-auth-brand { min-height:280px; padding:2.5rem; }
+  .mv-auth-brand h1 { max-width:700px; }
+}
+@media (max-width: 767.98px) {
+  .mv-main { padding-top:1.2rem; }
+  .mv-media-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap:.75rem; }
+  .mv-detail-layout { grid-template-columns: 125px minmax(0,1fr); gap:.8rem; }
+  .mv-detail-layout .mv-trailer-shell { grid-column:1 / -1; }
+  .mv-action-panel { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .mv-detail-title { font-size:2rem; }
+  .mv-episode-card { grid-template-columns:120px minmax(0,1fr); }
+  .mv-episode-card img { width:120px; height:78px; }
+  .mv-episode-card > :last-child { grid-column:1/-1; }
+  .mv-person-hero { grid-template-columns:130px minmax(0,1fr); gap:1rem; }
+  .mv-profile-head { grid-template-columns:88px minmax(0,1fr); }
+  .mv-profile-photo { width:88px; height:88px; }
+  .mv-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .mv-people-results { grid-template-columns:1fr 1fr; }
+  .mv-activity-item { grid-template-columns:52px minmax(0,1fr); }
+  .mv-activity-item > :last-child { grid-column:2; }
+}
+@media (max-width: 575.98px) {
+  .mv-container { width:min(100% - 1rem,1240px); }
+  .mv-media-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem; }
+  .mv-card-body { padding:.65rem; }
+  .mv-card-actions { top:.35rem; right:.35rem; }
+  .mv-icon-btn { width:32px; height:32px; }
+  .mv-hero-banner { padding:1.35rem; }
+  .mv-detail-layout { grid-template-columns:100px minmax(0,1fr); }
+  .mv-title-meta { font-size:.82rem; }
+  .mv-action-panel { grid-template-columns:1fr 1fr; }
+  .mv-score strong { font-size:1.2rem; }
+  .mv-person-hero { grid-template-columns:105px minmax(0,1fr); }
+  .mv-people-results { grid-template-columns:1fr; }
+  .mv-stat-grid { grid-template-columns:1fr 1fr; }
+  .mv-auth-form-shell { padding:1rem; }
+  .mv-auth-brand { min-height:220px; padding:1.5rem; }
+}

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MovieVerse.Dtos.Episodes;
 using MovieVerse.Exceptions;
@@ -120,18 +120,39 @@ public class EpisodeService(
             dto.DirectorIds,
             dto.WriterIds);
 
-        if (dto.Image is not null)
+        var folderPath =
+            environment.GetImageFolderPath(
+                "episodes");
+
+        string? newImage = null;
+
+        try
         {
-            episode.ImageUrl =
-                await dto.Image.SaveFileAsync(
-                    GetImageFolderPath());
+            if (dto.Image is not null)
+            {
+                newImage =
+                    await dto.Image
+                        .SaveFileAsync(
+                            folderPath);
+
+                episode.ImageUrl =
+                    newImage;
+            }
+
+            await episodeRepository.AddAsync(
+                episode);
+
+            await episodeRepository
+                .SaveChangesAsync();
         }
+        catch
+        {
+            FileManager.DeleteFile(
+                newImage,
+                folderPath);
 
-        await episodeRepository.AddAsync(
-            episode);
-
-        await episodeRepository
-            .SaveChangesAsync();
+            throw;
+        }
     }
 
     public async Task UpdateAsync(
@@ -140,16 +161,9 @@ public class EpisodeService(
     {
         var episode =
             await episodeRepository.Query()
-
-                .Include(x =>
-                    x.EpisodeActors)
-
-                .Include(x =>
-                    x.EpisodeDirectors)
-
-                .Include(x =>
-                    x.EpisodeWriters)
-
+                .Include(x => x.EpisodeActors)
+                .Include(x => x.EpisodeDirectors)
+                .Include(x => x.EpisodeWriters)
                 .FirstOrDefaultAsync(
                     x => x.Id == id);
 
@@ -188,24 +202,45 @@ public class EpisodeService(
             dto.DirectorIds,
             dto.WriterIds);
 
+        var folderPath =
+            environment.GetImageFolderPath(
+                "episodes");
+
+        string? newImage = null;
+
         if (dto.Image is not null)
         {
+            newImage =
+                await dto.Image
+                    .SaveFileAsync(
+                        folderPath);
+
             episode.ImageUrl =
-                await dto.Image.SaveFileAsync(
-                    GetImageFolderPath());
+                newImage;
         }
 
-        episodeRepository.Update(
-            episode);
+        try
+        {
+            episodeRepository.Update(
+                episode);
 
-        await episodeRepository
-            .SaveChangesAsync();
+            await episodeRepository
+                .SaveChangesAsync();
+        }
+        catch
+        {
+            FileManager.DeleteFile(
+                newImage,
+                folderPath);
 
-        if (dto.Image is not null)
+            throw;
+        }
+
+        if (newImage is not null)
         {
             FileManager.DeleteFile(
                 oldImage,
-                GetImageFolderPath());
+                folderPath);
         }
     }
 
@@ -231,7 +266,7 @@ public class EpisodeService(
 
         FileManager.DeleteFile(
             image,
-            GetImageFolderPath());
+            environment.GetImageFolderPath("episodes"));
     }
 
     private static void SetRelationships(
@@ -353,17 +388,4 @@ public class EpisodeService(
                 "Season was not found.");
     }
 
-    private string GetImageFolderPath()
-    {
-        var webRootPath =
-            environment.WebRootPath
-            ?? Path.Combine(
-                environment.ContentRootPath,
-                "wwwroot");
-
-        return Path.Combine(
-            webRootPath,
-            "images",
-            "episodes");
-    }
 }

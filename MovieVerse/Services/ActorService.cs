@@ -54,18 +54,40 @@ public class ActorService(
     public async Task CreateAsync(
         ActorCreateDto dto)
     {
-        var actor = mapper.Map<Actor>(dto);
+        var actor =
+            mapper.Map<Actor>(dto);
 
-        if (dto.ProfileImage is not null)
+        var folderPath =
+            environment.GetImageFolderPath(
+                "actors");
+
+        string? newImage = null;
+
+        try
         {
-            actor.ProfileImageUrl =
-                await dto.ProfileImage.SaveFileAsync(
-                    GetImageFolderPath());
+            if (dto.ProfileImage is not null)
+            {
+                newImage =
+                    await dto.ProfileImage
+                        .SaveFileAsync(
+                            folderPath);
+
+                actor.ProfileImageUrl =
+                    newImage;
+            }
+
+            await repository.AddAsync(actor);
+
+            await repository.SaveChangesAsync();
         }
+        catch
+        {
+            FileManager.DeleteFile(
+                newImage,
+                folderPath);
 
-        await repository.AddAsync(actor);
-
-        await repository.SaveChangesAsync();
+            throw;
+        }
     }
 
     public async Task UpdateAsync(
@@ -97,22 +119,43 @@ public class ActorService(
                 actor.ActorDetail);
         }
 
+        var folderPath =
+            environment.GetImageFolderPath(
+                "actors");
+
+        string? newImage = null;
+
         if (dto.ProfileImage is not null)
         {
+            newImage =
+                await dto.ProfileImage
+                    .SaveFileAsync(
+                        folderPath);
+
             actor.ProfileImageUrl =
-                await dto.ProfileImage.SaveFileAsync(
-                    GetImageFolderPath());
+                newImage;
         }
 
-        repository.Update(actor);
+        try
+        {
+            repository.Update(actor);
 
-        await repository.SaveChangesAsync();
+            await repository.SaveChangesAsync();
+        }
+        catch
+        {
+            FileManager.DeleteFile(
+                newImage,
+                folderPath);
 
-        if (dto.ProfileImage is not null)
+            throw;
+        }
+
+        if (newImage is not null)
         {
             FileManager.DeleteFile(
                 oldImage,
-                GetImageFolderPath());
+                folderPath);
         }
     }
 
@@ -148,7 +191,7 @@ public class ActorService(
 
         FileManager.DeleteFile(
             imageName,
-            GetImageFolderPath());
+            environment.GetImageFolderPath("actors"));
     }
 
     private async Task<List<FilmographyItemDto>>
@@ -206,7 +249,7 @@ public class ActorService(
                         x.Movie.ReleaseDate.Year,
 
                     PosterUrl =
-                        BuildPosterUrl(
+                        httpContextAccessor.BuildImageUrl(
                             x.Movie.PosterUrl,
                             "movies"),
 
@@ -235,7 +278,7 @@ public class ActorService(
                         credit.TVShow.ReleaseDate.Year,
 
                     PosterUrl =
-                        BuildPosterUrl(
+                        httpContextAccessor.BuildImageUrl(
                             credit.TVShow.PosterUrl,
                             "tvshows"),
 
@@ -307,7 +350,7 @@ public class ActorService(
                         tvShow.ReleaseDate.Year,
 
                     PosterUrl =
-                        BuildPosterUrl(
+                        httpContextAccessor.BuildImageUrl(
                             tvShow.PosterUrl,
                             "tvshows"),
 
@@ -366,40 +409,5 @@ public class ActorService(
             : string.Join(", ", names);
     }
 
-    private string? BuildPosterUrl(
-        string? fileName,
-        string folder)
-    {
-        if (string.IsNullOrWhiteSpace(
-                fileName))
-            return null;
 
-        var relativeUrl =
-            $"/images/{folder}/{fileName}";
-
-        var request =
-            httpContextAccessor
-                .HttpContext?
-                .Request;
-
-        if (request is null)
-            return relativeUrl;
-
-        return
-            $"{request.Scheme}://{request.Host}{relativeUrl}";
-    }
-
-    private string GetImageFolderPath()
-    {
-        var webRootPath =
-            environment.WebRootPath
-            ?? Path.Combine(
-                environment.ContentRootPath,
-                "wwwroot");
-
-        return Path.Combine(
-            webRootPath,
-            "images",
-            "actors");
-    }
 }

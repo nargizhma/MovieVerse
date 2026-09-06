@@ -1,17 +1,20 @@
-﻿using MovieVerse.Models.Common;
+using MovieVerse.Models.Common;
 
-namespace MovieVerse.Models
+namespace MovieVerse.Models;
+
+public class MovieReview : BaseEntity
 {
-    public class MovieReview : BaseEntity
-    {
-        public decimal Rating { get; set; }
+    public decimal Rating { get; set; }
 
-        public string? Content { get; set; }
+    public string? Content { get; set; }
 
-        public Guid MovieId { get; set; }
-        public Movie Movie { get; set; } = null!;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public Guid UserId { get; set; }
-        public AppUser User { get; set; } = null!;
-    }
+    public DateTime? UpdatedAt { get; set; }
+
+    public Guid MovieId { get; set; }
+    public Movie Movie { get; set; } = null!;
+
+    public Guid UserId { get; set; }
+    public AppUser User { get; set; } = null!;
 }

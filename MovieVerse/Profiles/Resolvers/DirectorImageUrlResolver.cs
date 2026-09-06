@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MovieVerse.Dtos.Directors;
+using MovieVerse.Extensions;
 using MovieVerse.Models;
 
 namespace MovieVerse.Profiles.Resolvers;
@@ -14,16 +15,8 @@ public class DirectorImageUrlResolver(
         string? destMember,
         ResolutionContext context)
     {
-        if (string.IsNullOrWhiteSpace(source.ProfileImageUrl))
-            return null;
-
-        var request =
-            httpContextAccessor.HttpContext?.Request;
-
-        if (request is null)
-            return $"/images/directors/{source.ProfileImageUrl}";
-
-        return
-            $"{request.Scheme}://{request.Host}/images/directors/{source.ProfileImageUrl}";
+        return httpContextAccessor.BuildImageUrl(
+            source.ProfileImageUrl,
+            "directors");
     }
 }

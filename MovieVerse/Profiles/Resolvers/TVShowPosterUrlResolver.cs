@@ -1,14 +1,12 @@
-﻿using AutoMapper;
+using AutoMapper;
+using MovieVerse.Extensions;
 using MovieVerse.Models;
 
 namespace MovieVerse.Profiles.Resolvers;
 
 public class TVShowPosterUrlResolver<TDestination>(
     IHttpContextAccessor httpContextAccessor)
-    : IValueResolver<
-        TVShow,
-        TDestination,
-        string?>
+    : IValueResolver<TVShow, TDestination, string?>
 {
     public string? Resolve(
         TVShow source,
@@ -16,20 +14,8 @@ public class TVShowPosterUrlResolver<TDestination>(
         string? destMember,
         ResolutionContext context)
     {
-        if (string.IsNullOrWhiteSpace(
-                source.PosterUrl))
-            return null;
-
-        var request =
-            httpContextAccessor
-                .HttpContext?
-                .Request;
-
-        if (request is null)
-            return
-                $"/images/tvshows/{source.PosterUrl}";
-
-        return
-            $"{request.Scheme}://{request.Host}/images/tvshows/{source.PosterUrl}";
+        return httpContextAccessor.BuildImageUrl(
+            source.PosterUrl,
+            "tvshows");
     }
 }

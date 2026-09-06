@@ -58,16 +58,37 @@ public class DirectorService(
         var director =
             mapper.Map<Director>(dto);
 
-        if (dto.ProfileImage is not null)
+        var folderPath =
+            environment.GetImageFolderPath(
+                "directors");
+
+        string? newImage = null;
+
+        try
         {
-            director.ProfileImageUrl =
-                await dto.ProfileImage.SaveFileAsync(
-                    GetImageFolderPath());
+            if (dto.ProfileImage is not null)
+            {
+                newImage =
+                    await dto.ProfileImage
+                        .SaveFileAsync(
+                            folderPath);
+
+                director.ProfileImageUrl =
+                    newImage;
+            }
+
+            await repository.AddAsync(director);
+
+            await repository.SaveChangesAsync();
         }
+        catch
+        {
+            FileManager.DeleteFile(
+                newImage,
+                folderPath);
 
-        await repository.AddAsync(director);
-
-        await repository.SaveChangesAsync();
+            throw;
+        }
     }
 
     public async Task UpdateAsync(
@@ -99,22 +120,43 @@ public class DirectorService(
                 director.DirectorDetail);
         }
 
+        var folderPath =
+            environment.GetImageFolderPath(
+                "directors");
+
+        string? newImage = null;
+
         if (dto.ProfileImage is not null)
         {
+            newImage =
+                await dto.ProfileImage
+                    .SaveFileAsync(
+                        folderPath);
+
             director.ProfileImageUrl =
-                await dto.ProfileImage.SaveFileAsync(
-                    GetImageFolderPath());
+                newImage;
         }
 
-        repository.Update(director);
+        try
+        {
+            repository.Update(director);
 
-        await repository.SaveChangesAsync();
+            await repository.SaveChangesAsync();
+        }
+        catch
+        {
+            FileManager.DeleteFile(
+                newImage,
+                folderPath);
 
-        if (dto.ProfileImage is not null)
+            throw;
+        }
+
+        if (newImage is not null)
         {
             FileManager.DeleteFile(
                 oldImage,
-                GetImageFolderPath());
+                folderPath);
         }
     }
 
@@ -149,7 +191,7 @@ public class DirectorService(
 
         FileManager.DeleteFile(
             imageName,
-            GetImageFolderPath());
+            environment.GetImageFolderPath("directors"));
     }
 
     private async Task<List<FilmographyItemDto>>
@@ -198,7 +240,7 @@ public class DirectorService(
                         x.Movie.ReleaseDate.Year,
 
                     PosterUrl =
-                        BuildPosterUrl(
+                        httpContextAccessor.BuildImageUrl(
                             x.Movie.PosterUrl,
                             "movies")
                 }));
@@ -232,7 +274,7 @@ public class DirectorService(
                             tvShow.ReleaseDate.Year,
 
                         PosterUrl =
-                            BuildPosterUrl(
+                            httpContextAccessor.BuildImageUrl(
                                 tvShow.PosterUrl,
                                 "tvshows"),
 
@@ -256,40 +298,5 @@ public class DirectorService(
             .ToList();
     }
 
-    private string? BuildPosterUrl(
-        string? fileName,
-        string folder)
-    {
-        if (string.IsNullOrWhiteSpace(
-                fileName))
-            return null;
 
-        var relativeUrl =
-            $"/images/{folder}/{fileName}";
-
-        var request =
-            httpContextAccessor
-                .HttpContext?
-                .Request;
-
-        if (request is null)
-            return relativeUrl;
-
-        return
-            $"{request.Scheme}://{request.Host}{relativeUrl}";
-    }
-
-    private string GetImageFolderPath()
-    {
-        var webRootPath =
-            environment.WebRootPath
-            ?? Path.Combine(
-                environment.ContentRootPath,
-                "wwwroot");
-
-        return Path.Combine(
-            webRootPath,
-            "images",
-            "directors");
-    }
 }

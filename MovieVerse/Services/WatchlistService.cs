@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MovieVerse.Dtos.UserLibrary;
 using MovieVerse.Exceptions;
+using MovieVerse.Extensions;
 using MovieVerse.Models;
 using MovieVerse.Repositories.Interfaces;
 using MovieVerse.Services.Interfaces;
@@ -24,6 +25,7 @@ public class WatchlistService(
                     .ThenInclude(x => x!.Reviews)
                 .Include(x => x.TVShow)
                     .ThenInclude(x => x!.Reviews)
+                .OrderByDescending(x => x.AddedAt)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -135,7 +137,7 @@ public class WatchlistService(
                 ContentType = "Movie",
                 ContentId = item.Movie.Id,
                 Title = item.Movie.Title,
-                PosterUrl = BuildPosterUrl(
+                PosterUrl = httpContextAccessor.BuildImageUrl(
                     item.Movie.PosterUrl,
                     "movies"),
                 ReleaseDate = item.Movie.ReleaseDate,
@@ -143,7 +145,8 @@ public class WatchlistService(
                     item.Movie.Reviews.Count != 0
                         ? item.Movie.Reviews
                             .Average(x => x.Rating)
-                        : null
+                        : null,
+                ActivityAt = item.AddedAt
             };
         }
 
@@ -155,7 +158,7 @@ public class WatchlistService(
                 ContentType = "TVShow",
                 ContentId = item.TVShow.Id,
                 Title = item.TVShow.Title,
-                PosterUrl = BuildPosterUrl(
+                PosterUrl = httpContextAccessor.BuildImageUrl(
                     item.TVShow.PosterUrl,
                     "tvshows"),
                 ReleaseDate = item.TVShow.ReleaseDate,
@@ -163,34 +166,13 @@ public class WatchlistService(
                     item.TVShow.Reviews.Count != 0
                         ? item.TVShow.Reviews
                             .Average(x => x.Rating)
-                        : null
+                        : null,
+                ActivityAt = item.AddedAt
             };
         }
 
         throw new InvalidOperationException(
             "Watchlist item does not reference a movie or TV show.");
-    }
-
-    private string? BuildPosterUrl(
-        string? fileName,
-        string folder)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-            return null;
-
-        var relativeUrl =
-            $"/images/{folder}/{fileName}";
-
-        var request =
-            httpContextAccessor
-                .HttpContext?
-                .Request;
-
-        if (request is null)
-            return relativeUrl;
-
-        return
-            $"{request.Scheme}://{request.Host}{relativeUrl}";
     }
 
     private async Task EnsureMovieExistsAsync(

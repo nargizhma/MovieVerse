@@ -219,22 +219,51 @@ public class TVShowService(
 
     public async Task CreateAsync(TVShowCreateDto dto)
     {
-        await ValidateRelatedEntitiesAsync(dto.GenreIds, dto.Actors);
+        await ValidateRelatedEntitiesAsync(
+            dto.GenreIds,
+            dto.Actors);
 
-        var tvShow = mapper.Map<TVShow>(dto);
+        var tvShow =
+            mapper.Map<TVShow>(dto);
 
-        tvShow.TVShowDetail = mapper.Map<TVShowDetail>(dto);
+        tvShow.TVShowDetail =
+            mapper.Map<TVShowDetail>(dto);
 
-        SetRelationships(tvShow, dto.GenreIds, dto.Actors);
+        SetRelationships(
+            tvShow,
+            dto.GenreIds,
+            dto.Actors);
 
-        if (dto.PosterImage is not null)
+        var folderPath =
+            environment.GetImageFolderPath(
+                "tvshows");
+
+        string? newPoster = null;
+
+        try
         {
-            tvShow.PosterUrl = await dto.PosterImage.SaveFileAsync(
-                GetImageFolderPath());
-        }
+            if (dto.PosterImage is not null)
+            {
+                newPoster =
+                    await dto.PosterImage
+                        .SaveFileAsync(
+                            folderPath);
 
-        await tvShowRepository.AddAsync(tvShow);
-        await tvShowRepository.SaveChangesAsync();
+                tvShow.PosterUrl =
+                    newPoster;
+            }
+
+            await tvShowRepository.AddAsync(tvShow);
+            await tvShowRepository.SaveChangesAsync();
+        }
+        catch
+        {
+            FileManager.DeleteFile(
+                newPoster,
+                folderPath);
+
+            throw;
+        }
     }
 
     public async Task UpdateAsync(Guid id, TVShowUpdateDto dto)
@@ -246,37 +275,71 @@ public class TVShowService(
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (tvShow is null)
-            throw new NotFoundException("TV show was not found.");
+            throw new NotFoundException(
+                "TV show was not found.");
 
-        await ValidateRelatedEntitiesAsync(dto.GenreIds, dto.Actors);
+        await ValidateRelatedEntitiesAsync(
+            dto.GenreIds,
+            dto.Actors);
 
-        var oldPoster = tvShow.PosterUrl;
+        var oldPoster =
+            tvShow.PosterUrl;
 
         mapper.Map(dto, tvShow);
 
         if (tvShow.TVShowDetail is null)
         {
-            tvShow.TVShowDetail = mapper.Map<TVShowDetail>(dto);
+            tvShow.TVShowDetail =
+                mapper.Map<TVShowDetail>(dto);
         }
         else
         {
-            mapper.Map(dto, tvShow.TVShowDetail);
+            mapper.Map(
+                dto,
+                tvShow.TVShowDetail);
         }
 
-        SetRelationships(tvShow, dto.GenreIds, dto.Actors);
+        SetRelationships(
+            tvShow,
+            dto.GenreIds,
+            dto.Actors);
+
+        var folderPath =
+            environment.GetImageFolderPath(
+                "tvshows");
+
+        string? newPoster = null;
 
         if (dto.PosterImage is not null)
         {
-            tvShow.PosterUrl = await dto.PosterImage.SaveFileAsync(
-                GetImageFolderPath());
+            newPoster =
+                await dto.PosterImage
+                    .SaveFileAsync(
+                        folderPath);
+
+            tvShow.PosterUrl =
+                newPoster;
         }
 
-        tvShowRepository.Update(tvShow);
-        await tvShowRepository.SaveChangesAsync();
-
-        if (dto.PosterImage is not null)
+        try
         {
-            FileManager.DeleteFile(oldPoster, GetImageFolderPath());
+            tvShowRepository.Update(tvShow);
+            await tvShowRepository.SaveChangesAsync();
+        }
+        catch
+        {
+            FileManager.DeleteFile(
+                newPoster,
+                folderPath);
+
+            throw;
+        }
+
+        if (newPoster is not null)
+        {
+            FileManager.DeleteFile(
+                oldPoster,
+                folderPath);
         }
     }
 
@@ -315,13 +378,13 @@ public class TVShowService(
 
         FileManager.DeleteFile(
             poster,
-            GetImageFolderPath());
+            environment.GetImageFolderPath("tvshows"));
 
         foreach (var image in episodeImages)
         {
             FileManager.DeleteFile(
                 image,
-                GetEpisodeImageFolderPath());
+                environment.GetImageFolderPath("episodes"));
         }
     }
 
@@ -393,24 +456,4 @@ public class TVShowService(
         }
     }
 
-    private string GetImageFolderPath()
-    {
-        var webRootPath = environment.WebRootPath
-            ?? Path.Combine(environment.ContentRootPath, "wwwroot");
-
-        return Path.Combine(webRootPath, "images", "tvshows");
-    }
-    private string GetEpisodeImageFolderPath()
-    {
-        var webRootPath =
-            environment.WebRootPath
-            ?? Path.Combine(
-                environment.ContentRootPath,
-                "wwwroot");
-
-        return Path.Combine(
-            webRootPath,
-            "images",
-            "episodes");
-    }
 }

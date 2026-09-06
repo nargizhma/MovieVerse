@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+using AutoMapper;
+using MovieVerse.Extensions;
 using MovieVerse.Models;
 
 namespace MovieVerse.Profiles.Resolvers;
@@ -13,16 +14,8 @@ public class MoviePosterUrlResolver<TDestination>(
         string? destMember,
         ResolutionContext context)
     {
-        if (string.IsNullOrWhiteSpace(source.PosterUrl))
-            return null;
-
-        var request =
-            httpContextAccessor.HttpContext?.Request;
-
-        if (request is null)
-            return $"/images/movies/{source.PosterUrl}";
-
-        return
-            $"{request.Scheme}://{request.Host}/images/movies/{source.PosterUrl}";
+        return httpContextAccessor.BuildImageUrl(
+            source.PosterUrl,
+            "movies");
     }
 }

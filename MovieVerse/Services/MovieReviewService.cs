@@ -24,6 +24,7 @@ public class MovieReviewService(
                 .Where(x => x.MovieId == movieId)
                 .Include(x => x.User)
                     .ThenInclude(x => x.Profile)
+                .OrderByDescending(x => x.CreatedAt)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -99,6 +100,8 @@ public class MovieReviewService(
                 "You have not reviewed this movie yet.");
 
         mapper.Map(dto, review);
+
+        review.UpdatedAt = DateTime.UtcNow;
 
         reviewRepository.Update(review);
         await reviewRepository.SaveChangesAsync();

@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MovieVerse.Data;
 using MovieVerse.Dtos.Search;
+using MovieVerse.Extensions;
 using MovieVerse.Services.Interfaces;
 
 namespace MovieVerse.Services;
@@ -145,7 +146,7 @@ public class GlobalSearchService(
                             x.Title,
 
                         ImageUrl =
-                            BuildImageUrl(
+                            httpContextAccessor.BuildImageUrl(
                                 x.PosterUrl,
                                 "movies"),
 
@@ -169,7 +170,7 @@ public class GlobalSearchService(
                             x.Title,
 
                         ImageUrl =
-                            BuildImageUrl(
+                            httpContextAccessor.BuildImageUrl(
                                 x.PosterUrl,
                                 "tvshows"),
 
@@ -194,7 +195,7 @@ public class GlobalSearchService(
                             x.FullName,
 
                         ImageUrl =
-                            BuildImageUrl(
+                            httpContextAccessor.BuildImageUrl(
                                 x.ProfileImageUrl,
                                 "actors"),
 
@@ -217,7 +218,7 @@ public class GlobalSearchService(
                             x.FullName,
 
                         ImageUrl =
-                            BuildImageUrl(
+                            httpContextAccessor.BuildImageUrl(
                                 x.ProfileImageUrl,
                                 "directors"),
 
@@ -240,7 +241,7 @@ public class GlobalSearchService(
                             x.FullName,
 
                         ImageUrl =
-                            BuildImageUrl(
+                            httpContextAccessor.BuildImageUrl(
                                 x.ProfileImageUrl,
                                 "writers"),
 
@@ -251,26 +252,4 @@ public class GlobalSearchService(
         };
     }
 
-    private string? BuildImageUrl(
-        string? fileName,
-        string folder)
-    {
-        if (string.IsNullOrWhiteSpace(
-                fileName))
-            return null;
-
-        var relativeUrl =
-            $"/images/{folder}/{fileName}";
-
-        var request =
-            httpContextAccessor
-                .HttpContext?
-                .Request;
-
-        if (request is null)
-            return relativeUrl;
-
-        return
-            $"{request.Scheme}://{request.Host}{relativeUrl}";
-    }
 }

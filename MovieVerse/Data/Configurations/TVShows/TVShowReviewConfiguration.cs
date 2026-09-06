@@ -23,9 +23,14 @@ public class TVShowReviewConfiguration : IEntityTypeConfiguration<TVShowReview>
         builder
             .HasIndex(x => new { x.TVShowId, x.UserId })
             .IsUnique();
+
         builder.Property(x => x.Rating)
             .HasPrecision(3, 1);
+
         builder.Property(x => x.Content)
             .HasMaxLength(5000);
+
+        builder.Property(x => x.CreatedAt)
+            .HasDefaultValueSql("SYSUTCDATETIME()");
     }
 }

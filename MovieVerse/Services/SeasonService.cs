@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MovieVerse.Dtos.Seasons;
 using MovieVerse.Exceptions;
@@ -157,7 +157,7 @@ public class SeasonService(
         {
             FileManager.DeleteFile(
                 image,
-                GetEpisodeImageFolderPath());
+                environment.GetImageFolderPath("episodes"));
         }
     }
 
@@ -173,18 +173,5 @@ public class SeasonService(
         if (!exists)
             throw new NotFoundException(
                 "TV show was not found.");
-    }
-    private string GetEpisodeImageFolderPath()
-    {
-        var webRootPath =
-            environment.WebRootPath
-            ?? Path.Combine(
-                environment.ContentRootPath,
-                "wwwroot");
-
-        return Path.Combine(
-            webRootPath,
-            "images",
-            "episodes");
     }
 }

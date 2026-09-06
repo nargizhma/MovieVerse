@@ -24,6 +24,7 @@ public class EpisodeReviewService(
                 .Where(x => x.EpisodeId == episodeId)
                 .Include(x => x.User)
                     .ThenInclude(x => x.Profile)
+                .OrderByDescending(x => x.CreatedAt)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -99,6 +100,8 @@ public class EpisodeReviewService(
                 "You have not reviewed this episode yet.");
 
         mapper.Map(dto, review);
+
+        review.UpdatedAt = DateTime.UtcNow;
 
         reviewRepository.Update(review);
         await reviewRepository.SaveChangesAsync();

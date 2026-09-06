@@ -1,4 +1,4 @@
-﻿using MovieVerse.Models.Common;
+using MovieVerse.Models.Common;
 
 namespace MovieVerse.Models;
 
@@ -13,4 +13,5 @@ public class WatchHistoryItem : BaseEntity
     public Guid? TVShowId { get; set; }
     public TVShow? TVShow { get; set; }
 
+    public DateTime WatchedAt { get; set; } = DateTime.UtcNow;
 }

@@ -33,45 +33,25 @@ public class UserProfileService(
 
         return new MyProfileReturnDto
         {
-            UserId =
-                user.Id,
-
-            UserName =
-                user.UserName ?? string.Empty,
-
-            Email =
-                user.Email ?? string.Empty,
-
-            DisplayName =
-                user.Profile?.DisplayName,
-
-            Bio =
-                user.Profile?.Bio,
-
+            UserId = user.Id,
+            UserName = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            DisplayName = user.Profile?.DisplayName,
+            Bio = user.Profile?.Bio,
             ProfileImageUrl =
-                BuildProfileImageUrl(
-                    user.Profile?.ProfileImageUrl),
-
-            MovieReviewCount =
-                counts.MovieReviewCount,
-
-            TVShowReviewCount =
-                counts.TVShowReviewCount,
-
-            EpisodeReviewCount =
-                counts.EpisodeReviewCount,
-
-            WatchlistCount =
-                counts.WatchlistCount,
-
-            WatchHistoryCount =
-                counts.WatchHistoryCount
+                httpContextAccessor.BuildImageUrl(
+                    user.Profile?.ProfileImageUrl,
+                    "profiles"),
+            MovieReviewCount = counts.MovieReviewCount,
+            TVShowReviewCount = counts.TVShowReviewCount,
+            EpisodeReviewCount = counts.EpisodeReviewCount,
+            WatchlistCount = counts.WatchlistCount,
+            WatchHistoryCount = counts.WatchHistoryCount
         };
     }
 
-    public async Task<UserProfileReturnDto>
-        GetByUserNameAsync(
-            string userName)
+    public async Task<UserProfileReturnDto> GetByUserNameAsync(
+        string userName)
     {
         var normalizedUserName =
             userName.Trim();
@@ -92,36 +72,19 @@ public class UserProfileService(
 
         return new UserProfileReturnDto
         {
-            UserId =
-                user.Id,
-
-            UserName =
-                user.UserName ?? string.Empty,
-
-            DisplayName =
-                user.Profile?.DisplayName,
-
-            Bio =
-                user.Profile?.Bio,
-
+            UserId = user.Id,
+            UserName = user.UserName ?? string.Empty,
+            DisplayName = user.Profile?.DisplayName,
+            Bio = user.Profile?.Bio,
             ProfileImageUrl =
-                BuildProfileImageUrl(
-                    user.Profile?.ProfileImageUrl),
-
-            MovieReviewCount =
-                counts.MovieReviewCount,
-
-            TVShowReviewCount =
-                counts.TVShowReviewCount,
-
-            EpisodeReviewCount =
-                counts.EpisodeReviewCount,
-
-            WatchlistCount =
-                counts.WatchlistCount,
-
-            WatchHistoryCount =
-                counts.WatchHistoryCount
+                httpContextAccessor.BuildImageUrl(
+                    user.Profile?.ProfileImageUrl,
+                    "profiles"),
+            MovieReviewCount = counts.MovieReviewCount,
+            TVShowReviewCount = counts.TVShowReviewCount,
+            EpisodeReviewCount = counts.EpisodeReviewCount,
+            WatchlistCount = counts.WatchlistCount,
+            WatchHistoryCount = counts.WatchHistoryCount
         };
     }
 
@@ -144,8 +107,7 @@ public class UserProfileService(
             user.Profile =
                 new UserProfile
                 {
-                    AppUserId =
-                        user.Id
+                    AppUserId = user.Id
                 };
         }
 
@@ -160,21 +122,41 @@ public class UserProfileService(
             NormalizeOptionalText(
                 dto.Bio);
 
+        var folderPath =
+            environment.GetImageFolderPath(
+                "profiles");
+
+        string? newImage = null;
+
         if (dto.ProfileImage is not null)
         {
-            user.Profile.ProfileImageUrl =
+            newImage =
                 await dto.ProfileImage
                     .SaveFileAsync(
-                        GetImageFolderPath());
+                        folderPath);
+
+            user.Profile.ProfileImageUrl =
+                newImage;
         }
 
-        await dbContext.SaveChangesAsync();
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch
+        {
+            FileManager.DeleteFile(
+                newImage,
+                folderPath);
 
-        if (dto.ProfileImage is not null)
+            throw;
+        }
+
+        if (newImage is not null)
         {
             FileManager.DeleteFile(
                 oldImage,
-                GetImageFolderPath());
+                folderPath);
         }
     }
 
@@ -206,12 +188,112 @@ public class UserProfileService(
 
         FileManager.DeleteFile(
             oldImage,
-            GetImageFolderPath());
+            environment.GetImageFolderPath(
+                "profiles"));
     }
 
-    private async Task<ProfileCounts>
-        GetCountsAsync(
-            Guid userId)
+    public async Task<List<ProfileActivityItemDto>> GetMyActivityAsync(
+        Guid userId)
+    {
+        var movieReviews =
+            await dbContext.MovieReviews
+                .Where(x =>
+                    x.UserId == userId)
+                .Include(x => x.Movie)
+                .AsNoTracking()
+                .ToListAsync();
+
+        var tvShowReviews =
+            await dbContext.TVShowReviews
+                .Where(x =>
+                    x.UserId == userId)
+                .Include(x => x.TVShow)
+                .AsNoTracking()
+                .ToListAsync();
+
+        var episodeReviews =
+            await dbContext.EpisodeReviews
+                .Where(x =>
+                    x.UserId == userId)
+                .Include(x => x.Episode)
+                    .ThenInclude(x => x.Season)
+                    .ThenInclude(x => x.TVShow)
+                .AsNoTracking()
+                .ToListAsync();
+
+        var result =
+            new List<ProfileActivityItemDto>();
+
+        result.AddRange(
+            movieReviews.Select(x =>
+                new ProfileActivityItemDto
+                {
+                    ReviewId = x.Id,
+                    ContentType = "Movie",
+                    ContentId = x.MovieId,
+                    Title = x.Movie.Title,
+                    ImageUrl =
+                        httpContextAccessor.BuildImageUrl(
+                            x.Movie.PosterUrl,
+                            "movies"),
+                    Rating = x.Rating,
+                    Content = x.Content,
+                    ActivityAt =
+                        x.UpdatedAt ?? x.CreatedAt
+                }));
+
+        result.AddRange(
+            tvShowReviews.Select(x =>
+                new ProfileActivityItemDto
+                {
+                    ReviewId = x.Id,
+                    ContentType = "TVShow",
+                    ContentId = x.TVShowId,
+                    Title = x.TVShow.Title,
+                    ImageUrl =
+                        httpContextAccessor.BuildImageUrl(
+                            x.TVShow.PosterUrl,
+                            "tvshows"),
+                    Rating = x.Rating,
+                    Content = x.Content,
+                    ActivityAt =
+                        x.UpdatedAt ?? x.CreatedAt
+                }));
+
+        result.AddRange(
+            episodeReviews.Select(x =>
+                new ProfileActivityItemDto
+                {
+                    ReviewId = x.Id,
+                    ContentType = "Episode",
+                    ContentId = x.EpisodeId,
+                    TVShowId =
+                        x.Episode.Season.TVShowId,
+                    Title = x.Episode.Title,
+                    ParentTitle =
+                        x.Episode.Season.TVShow.Title,
+                    SeasonNumber =
+                        x.Episode.Season.SeasonNumber,
+                    EpisodeNumber =
+                        x.Episode.EpisodeNumber,
+                    ImageUrl =
+                        httpContextAccessor.BuildImageUrl(
+                            x.Episode.ImageUrl,
+                            "episodes"),
+                    Rating = x.Rating,
+                    Content = x.Content,
+                    ActivityAt =
+                        x.UpdatedAt ?? x.CreatedAt
+                }));
+
+        return result
+            .OrderByDescending(x =>
+                x.ActivityAt)
+            .ToList();
+    }
+
+    private async Task<ProfileCounts> GetCountsAsync(
+        Guid userId)
     {
         var movieReviewCount =
             await dbContext.MovieReviews
@@ -246,42 +328,6 @@ public class UserProfileService(
             watchHistoryCount);
     }
 
-    private string? BuildProfileImageUrl(
-        string? fileName)
-    {
-        if (string.IsNullOrWhiteSpace(
-                fileName))
-            return null;
-
-        var relativeUrl =
-            $"/images/profiles/{fileName}";
-
-        var request =
-            httpContextAccessor
-                .HttpContext?
-                .Request;
-
-        if (request is null)
-            return relativeUrl;
-
-        return
-            $"{request.Scheme}://{request.Host}{relativeUrl}";
-    }
-
-    private string GetImageFolderPath()
-    {
-        var webRootPath =
-            environment.WebRootPath
-            ?? Path.Combine(
-                environment.ContentRootPath,
-                "wwwroot");
-
-        return Path.Combine(
-            webRootPath,
-            "images",
-            "profiles");
-    }
-
     private static string? NormalizeOptionalText(
         string? value)
     {
@@ -289,177 +335,7 @@ public class UserProfileService(
             ? null
             : value.Trim();
     }
-    public async Task<List<ProfileActivityItemDto>>
-    GetMyActivityAsync(
-        Guid userId)
-    {
-        var movieReviews =
-            await dbContext.MovieReviews
-                .Where(x =>
-                    x.UserId == userId)
-                .Include(x =>
-                    x.Movie)
-                .AsNoTracking()
-                .ToListAsync();
 
-        var tvShowReviews =
-            await dbContext.TVShowReviews
-                .Where(x =>
-                    x.UserId == userId)
-                .Include(x =>
-                    x.TVShow)
-                .AsNoTracking()
-                .ToListAsync();
-
-        var episodeReviews =
-            await dbContext.EpisodeReviews
-                .Where(x =>
-                    x.UserId == userId)
-                .Include(x =>
-                    x.Episode)
-                    .ThenInclude(x =>
-                        x.Season)
-                    .ThenInclude(x =>
-                        x.TVShow)
-                .AsNoTracking()
-                .ToListAsync();
-
-        var result =
-            new List<ProfileActivityItemDto>();
-
-        result.AddRange(
-            movieReviews.Select(x =>
-                new ProfileActivityItemDto
-                {
-                    ReviewId =
-                        x.Id,
-
-                    ContentType =
-                        "Movie",
-
-                    ContentId =
-                        x.MovieId,
-
-                    Title =
-                        x.Movie.Title,
-
-                    ImageUrl =
-                        BuildMediaImageUrl(
-                            x.Movie.PosterUrl,
-                            "movies"),
-
-                    Rating =
-                        x.Rating,
-
-                    Content =
-                        x.Content
-                }));
-
-        result.AddRange(
-            tvShowReviews.Select(x =>
-                new ProfileActivityItemDto
-                {
-                    ReviewId =
-                        x.Id,
-
-                    ContentType =
-                        "TVShow",
-
-                    ContentId =
-                        x.TVShowId,
-
-                    Title =
-                        x.TVShow.Title,
-
-                    ImageUrl =
-                        BuildMediaImageUrl(
-                            x.TVShow.PosterUrl,
-                            "tvshows"),
-
-                    Rating =
-                        x.Rating,
-
-                    Content =
-                        x.Content
-                }));
-
-        result.AddRange(
-            episodeReviews.Select(x =>
-                new ProfileActivityItemDto
-                {
-                    ReviewId =
-                        x.Id,
-
-                    ContentType =
-                        "Episode",
-
-                    ContentId =
-                        x.EpisodeId,
-
-                    TVShowId =
-                        x.Episode
-                            .Season
-                            .TVShowId,
-
-                    Title =
-                        x.Episode.Title,
-
-                    ParentTitle =
-                        x.Episode
-                            .Season
-                            .TVShow
-                            .Title,
-
-                    SeasonNumber =
-                        x.Episode
-                            .Season
-                            .SeasonNumber,
-
-                    EpisodeNumber =
-                        x.Episode
-                            .EpisodeNumber,
-
-                    ImageUrl =
-                        BuildMediaImageUrl(
-                            x.Episode.ImageUrl,
-                            "episodes"),
-
-                    Rating =
-                        x.Rating,
-
-                    Content =
-                        x.Content
-                }));
-
-        return result
-            .OrderBy(x =>
-                x.ContentType)
-            .ThenBy(x =>
-                x.Title)
-            .ToList();
-    }
-    private string? BuildMediaImageUrl(
-    string? fileName,
-    string folder)
-    {
-        if (string.IsNullOrWhiteSpace(
-                fileName))
-            return null;
-
-        var relativeUrl =
-            $"/images/{folder}/{fileName}";
-
-        var request =
-            httpContextAccessor
-                .HttpContext?
-                .Request;
-
-        if (request is null)
-            return relativeUrl;
-
-        return
-            $"{request.Scheme}://{request.Host}{relativeUrl}";
-    }
     private sealed record ProfileCounts(
         int MovieReviewCount,
         int TVShowReviewCount,

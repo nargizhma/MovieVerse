@@ -15,4 +15,6 @@ public class LibraryItemReturnDto
     public DateTime ReleaseDate { get; set; }
 
     public decimal? AverageRating { get; set; }
+
+    public DateTime ActivityAt { get; set; }
 }

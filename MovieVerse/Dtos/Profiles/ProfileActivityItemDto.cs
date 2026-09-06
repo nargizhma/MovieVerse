@@ -1,4 +1,4 @@
-﻿namespace MovieVerse.Dtos.Profiles;
+namespace MovieVerse.Dtos.Profiles;
 
 public class ProfileActivityItemDto
 {
@@ -23,4 +23,6 @@ public class ProfileActivityItemDto
     public decimal Rating { get; set; }
 
     public string? Content { get; set; }
+
+    public DateTime ActivityAt { get; set; }
 }

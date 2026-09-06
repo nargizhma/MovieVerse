@@ -239,16 +239,37 @@ public class MovieService(
             dto.DirectorIds,
             dto.WriterIds);
 
-        if (dto.PosterImage is not null)
+        var folderPath =
+            environment.GetImageFolderPath(
+                "movies");
+
+        string? newPoster = null;
+
+        try
         {
-            movie.PosterUrl =
-                await dto.PosterImage.SaveFileAsync(
-                    GetImageFolderPath());
+            if (dto.PosterImage is not null)
+            {
+                newPoster =
+                    await dto.PosterImage
+                        .SaveFileAsync(
+                            folderPath);
+
+                movie.PosterUrl =
+                    newPoster;
+            }
+
+            await movieRepository.AddAsync(movie);
+
+            await movieRepository.SaveChangesAsync();
         }
+        catch
+        {
+            FileManager.DeleteFile(
+                newPoster,
+                folderPath);
 
-        await movieRepository.AddAsync(movie);
-
-        await movieRepository.SaveChangesAsync();
+            throw;
+        }
     }
 
     public async Task UpdateAsync(
@@ -256,17 +277,11 @@ public class MovieService(
         MovieUpdateDto dto)
     {
         var movie = await movieRepository.Query()
-
             .Include(x => x.MovieDetail)
-
             .Include(x => x.MovieGenres)
-
             .Include(x => x.MovieActors)
-
             .Include(x => x.MovieDirectors)
-
             .Include(x => x.MovieWriters)
-
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (movie is null)
@@ -303,22 +318,43 @@ public class MovieService(
             dto.DirectorIds,
             dto.WriterIds);
 
+        var folderPath =
+            environment.GetImageFolderPath(
+                "movies");
+
+        string? newPoster = null;
+
         if (dto.PosterImage is not null)
         {
+            newPoster =
+                await dto.PosterImage
+                    .SaveFileAsync(
+                        folderPath);
+
             movie.PosterUrl =
-                await dto.PosterImage.SaveFileAsync(
-                    GetImageFolderPath());
+                newPoster;
         }
 
-        movieRepository.Update(movie);
+        try
+        {
+            movieRepository.Update(movie);
 
-        await movieRepository.SaveChangesAsync();
+            await movieRepository.SaveChangesAsync();
+        }
+        catch
+        {
+            FileManager.DeleteFile(
+                newPoster,
+                folderPath);
 
-        if (dto.PosterImage is not null)
+            throw;
+        }
+
+        if (newPoster is not null)
         {
             FileManager.DeleteFile(
                 oldPoster,
-                GetImageFolderPath());
+                folderPath);
         }
     }
 
@@ -340,7 +376,7 @@ public class MovieService(
 
         FileManager.DeleteFile(
             poster,
-            GetImageFolderPath());
+            environment.GetImageFolderPath("movies"));
     }
 
     private static void SetRelationships(
@@ -459,17 +495,4 @@ public class MovieService(
         }
     }
 
-    private string GetImageFolderPath()
-    {
-        var webRootPath =
-            environment.WebRootPath
-            ?? Path.Combine(
-                environment.ContentRootPath,
-                "wwwroot");
-
-        return Path.Combine(
-            webRootPath,
-            "images",
-            "movies");
-    }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MovieVerse.Models;
 
@@ -36,6 +36,9 @@ public class WatchHistoryItemConfiguration
             .HasIndex(x => new { x.UserId, x.TVShowId })
             .IsUnique()
             .HasFilter("[TVShowId] IS NOT NULL");
+
+        builder.Property(x => x.WatchedAt)
+            .HasDefaultValueSql("SYSUTCDATETIME()");
 
         builder.ToTable(t =>
             t.HasCheckConstraint(

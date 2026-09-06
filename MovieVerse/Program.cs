@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -20,7 +21,42 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(x =>
+                    x.Value?.Errors.Count > 0)
+                .SelectMany(x =>
+                    x.Value!.Errors.Select(error =>
+                        string.IsNullOrWhiteSpace(
+                            error.ErrorMessage)
+                            ? $"Invalid value for {x.Key}."
+                            : error.ErrorMessage))
+                .Distinct()
+                .ToArray();
+
+            return new BadRequestObjectResult(
+                new ProblemDetails
+                {
+                    Status =
+                        StatusCodes.Status400BadRequest,
+
+                    Title =
+                        "Bad Request",
+
+                    Detail =
+                        errors.Length > 0
+                            ? string.Join(
+                                " ",
+                                errors)
+                            : "The submitted data is invalid."
+                });
+        };
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {

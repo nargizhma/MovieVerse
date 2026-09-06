@@ -69,13 +69,12 @@ MV.navbar = (() => {
     ];
     let html=""; let count=0;
     for(const [label,items] of groups){ if(!items.length) continue; count+=items.length; html+=`<div class="mv-search-group-title">${label}</div>`; html+=items.map(item=>{
-      const href = resultHref(item,prefix); return `<div class="mv-search-result" role="option" tabindex="-1" data-href="${MV.ui.escapeHtml(href)}"><img src="${MV.ui.escapeHtml(resolveNavImage(item.imageUrl,prefix))}" alt=""><div><strong>${MV.ui.escapeHtml(item.title)}</strong><small>${MV.ui.escapeHtml(item.subtitle||item.resultType)}</small></div><span class="badge mv-badge">${MV.ui.escapeHtml(item.resultType)}</span></div>`;
+      const href = resultHref(item,prefix); const kind=MV.media.searchResultPlaceholderKind(item); return `<div class="mv-search-result" role="option" tabindex="-1" data-href="${MV.ui.escapeHtml(href)}"><img src="${MV.ui.escapeHtml(MV.media.searchResultImageUrl(item,Boolean(prefix)))}" ${MV.media.imageFallbackAttributes(kind,Boolean(prefix))} alt=""><div><strong>${MV.ui.escapeHtml(item.title)}</strong><small>${MV.ui.escapeHtml(MV.ui.optionalText(item.subtitle)||item.resultType)}</small></div><span class="badge mv-badge">${MV.ui.escapeHtml(item.resultType)}</span></div>`;
     }).join(""); }
     if(!count) html=`<div class="p-3 text-secondary">No results for “${MV.ui.escapeHtml(q)}”. <a href="${prefix}search.html?q=${encodeURIComponent(q)}">Open browse search</a></div>`;
     else html+=`<div class="p-2 border-top" style="border-color:var(--border)!important"><a class="btn btn-sm btn-outline-primary w-100" href="${prefix}search.html?q=${encodeURIComponent(q)}">See all title results</a></div>`;
     return html;
   }
-  function resolveNavImage(url,prefix){ if(!url) return `${prefix}assets/images/placeholder.svg`; if(/^https?:\/\//i.test(url))return url; return `${MV.config.BACKEND_ORIGIN}${String(url).startsWith("/")?"":"/"}${url}`; }
   function resultHref(item,prefix){ const t=String(item.resultType||"").toLowerCase(); if(t==="movie") return `${prefix}movie-details.html?id=${encodeURIComponent(item.id)}`; if(t==="tvshow")return `${prefix}tvshow-details.html?id=${encodeURIComponent(item.id)}`; return `${prefix}person-details.html?type=${encodeURIComponent(t)}&id=${encodeURIComponent(item.id)}`; }
 
   document.addEventListener("DOMContentLoaded",render);

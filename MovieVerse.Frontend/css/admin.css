@@ -13,10 +13,11 @@
 .mv-admin-stat { background:var(--surface); border:1px solid var(--border); border-radius:.9rem; padding:1rem; }
 .mv-admin-stat .value { font-size:1.8rem; font-weight:900; }
 .mv-admin-stat .label { color:var(--text-secondary); }
-.mv-admin-table-img { width:44px; height:62px; object-fit:cover; border-radius:.4rem; background:#0b111b; }
+.mv-admin-table-img { width:44px; height:62px; object-fit:cover; object-position:center; border-radius:.4rem; background:#0b111b; }
 .mv-admin-form-section { background:var(--surface); border:1px solid var(--border); border-radius:.9rem; padding:1rem; margin-bottom:1rem; }
 .mv-admin-form-section h3 { font-size:1.05rem; font-weight:850; margin-bottom:1rem; }
-.mv-image-preview { width:160px; max-height:230px; object-fit:cover; border-radius:.7rem; border:1px solid var(--border); background:#0b111b; }
+.mv-image-preview { width:160px; height:230px; object-fit:cover; object-position:center; display:block; border-radius:.7rem; border:1px solid var(--border); background:#0b111b; }
+.mv-profile-edit-preview { width:160px; height:160px; border-radius:50%; }
 .mv-picker { position:relative; }
 .mv-picker-results { position:absolute; left:0; right:0; top:calc(100% + .25rem); z-index:30; max-height:220px; overflow:auto; background:#0b1421; border:1px solid var(--border); border-radius:.6rem; box-shadow:var(--shadow); }
 .mv-picker-option { padding:.55rem .7rem; cursor:pointer; }

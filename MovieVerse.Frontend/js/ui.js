@@ -7,6 +7,23 @@ MV.ui = (() => {
   const escapeHtml = value => String(value ?? "").replace(/[&<>'"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", '"':"&quot;" }[ch]));
   const debounce = (fn, wait = 300) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); }; };
 
+  function optionalText(value) {
+    if (value === null || value === undefined) return "";
+    const text = String(value).trim();
+    if (!text) return "";
+
+    // Swagger/OpenAPI examples often use the literal value "string".
+    // Treat those placeholder-like values as missing only when a page asks
+    // for optional content through this helper.
+    const normalized = text.toLowerCase();
+    if (["string", "null", "undefined"].includes(normalized)) return "";
+    return text;
+  }
+
+  function hasOptionalText(value) {
+    return optionalText(value) !== "";
+  }
+
   function ensureGlobalUi() {
     if (!$id("mvToastContainer")) {
       document.body.insertAdjacentHTML("beforeend", '<div id="mvToastContainer" class="toast-container position-fixed bottom-0 end-0 p-3 mv-toast-container"></div>');
@@ -94,5 +111,5 @@ MV.ui = (() => {
   function safeHref(url) { try { const u = new URL(url, location.href); return ["http:","https:"].includes(u.protocol) ? u.href : "#"; } catch { return "#"; } }
 
   document.addEventListener("DOMContentLoaded", () => { ensureGlobalUi(); consumeFlash(); });
-  return { $id, qs, qsa, escapeHtml, debounce, toast, showError, confirm, buttonBusy, emptyState, skeletonCards, skeletonLines, setFlash, consumeFlash, getParam, requireParam, setText, visible, safeHref };
+  return { $id, qs, qsa, escapeHtml, debounce, optionalText, hasOptionalText, toast, showError, confirm, buttonBusy, emptyState, skeletonCards, skeletonLines, setFlash, consumeFlash, getParam, requireParam, setText, visible, safeHref };
 })();

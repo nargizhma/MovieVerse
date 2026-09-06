@@ -14,7 +14,7 @@
 .mv-results-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin: 1.7rem 0 1rem; }
 .mv-people-results { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: .8rem; }
 .mv-search-person { display:flex; gap:.7rem; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:.75rem; padding:.7rem; color:white; }
-.mv-search-person img { width:52px; height:62px; object-fit:cover; border-radius:.45rem; }
+.mv-search-person img { width:52px; height:62px; object-fit:cover; object-position:center; border-radius:.45rem; background:var(--surface); }
 
 /* Detail hero */
 .mv-detail-hero { position: relative; border-bottom: 1px solid var(--border); background: #0b111b; overflow: hidden; }
@@ -24,7 +24,7 @@
 .mv-title-meta { color: var(--text-secondary); display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; }
 .mv-detail-title { font-weight:900; letter-spacing:-.035em; font-size:clamp(2rem,5vw,3.7rem); }
 .mv-detail-layout { display:grid; grid-template-columns: minmax(180px,240px) minmax(0,1fr) minmax(230px,280px); gap:1.25rem; margin-top:1.2rem; align-items:start; }
-.mv-detail-poster { width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:.85rem; border:1px solid #31435e; box-shadow:var(--shadow); }
+.mv-detail-poster { width:100%; aspect-ratio:2/3; object-fit:cover; object-position:center; border-radius:.85rem; border:1px solid #31435e; box-shadow:var(--shadow); background:var(--surface); }
 .mv-trailer-shell { aspect-ratio:16/9; border-radius:.9rem; overflow:hidden; border:1px solid var(--border); background:#060a10; display:grid; place-items:center; }
 .mv-trailer-shell iframe { width:100%; height:100%; border:0; }
 .mv-action-panel { background:rgba(13,20,32,.86); border:1px solid var(--border); border-radius:.9rem; padding:.9rem; backdrop-filter:blur(10px); }
@@ -46,29 +46,29 @@
 .mv-season-pill.active { background:var(--accent-strong); color:white; border-color:var(--accent-strong); }
 .mv-episode-list { display:grid; gap:.75rem; margin-top:1rem; }
 .mv-episode-card { display:grid; grid-template-columns: 190px minmax(0,1fr) auto; gap:1rem; align-items:center; padding:.85rem; background:var(--surface); border:1px solid var(--border); border-radius:.85rem; }
-.mv-episode-card img { width:190px; height:108px; object-fit:cover; border-radius:.55rem; }
+.mv-episode-card img { width:190px; height:108px; object-fit:cover; object-position:center; border-radius:.55rem; background:var(--surface); }
 .mv-episode-card h4 { margin:0 0 .25rem; font-size:1.05rem; }
 .mv-episode-detail { margin-top:.75rem; padding:1rem; background:#0c1523; border:1px solid #2b405e; border-radius:.85rem; }
 
 /* Person */
 .mv-person-hero { display:grid; grid-template-columns:230px minmax(0,1fr); gap:1.6rem; align-items:start; }
-.mv-person-portrait { width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:1rem; border:1px solid var(--border); }
+.mv-person-portrait { width:100%; aspect-ratio:3/4; object-fit:cover; object-position:center; display:block; border-radius:1rem; border:1px solid var(--border); background:var(--surface); }
 .mv-role-badge { display:inline-flex; align-items:center; gap:.4rem; background:var(--accent-soft); border:1px solid rgba(69,210,232,.2); color:#83e4f1; border-radius:999px; padding:.35rem .7rem; font-weight:800; }
 .mv-filmography { display:grid; gap:.5rem; }
 .mv-filmography-item { display:grid; grid-template-columns:56px minmax(0,1fr) auto; gap:.8rem; align-items:center; padding:.65rem; background:var(--surface); border:1px solid var(--border); border-radius:.7rem; color:#fff; }
 .mv-filmography-item:hover { background:var(--surface-hover); color:#fff; }
-.mv-filmography-item img { width:56px; height:78px; object-fit:cover; border-radius:.38rem; }
+.mv-filmography-item img { width:56px; height:78px; object-fit:cover; object-position:center; border-radius:.38rem; background:var(--surface); }
 
 /* Profile */
 .mv-profile-head { display:grid; grid-template-columns:120px minmax(0,1fr); gap:1.1rem; align-items:center; }
-.mv-profile-photo { width:120px; height:120px; object-fit:cover; border-radius:50%; border:2px solid #2e486c; background:var(--surface); }
+.mv-profile-photo { width:120px; height:120px; object-fit:cover; object-position:center; display:block; border-radius:50%; border:2px solid #2e486c; background:var(--surface); }
 .mv-stat-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:.75rem; }
 .mv-stat { padding:1rem; background:var(--surface); border:1px solid var(--border); border-radius:.8rem; }
 .mv-stat strong { font-size:1.5rem; display:block; }
 .mv-stat span { color:var(--text-secondary); font-size:.8rem; }
 .mv-activity-list { display:grid; gap:.7rem; }
 .mv-activity-item { display:grid; grid-template-columns:64px minmax(0,1fr) auto; gap:.85rem; align-items:center; padding:.75rem; background:var(--surface); border:1px solid var(--border); border-radius:.8rem; }
-.mv-activity-item img { width:64px; height:88px; object-fit:cover; border-radius:.4rem; }
+.mv-activity-item img { width:64px; height:88px; object-fit:cover; object-position:center; border-radius:.4rem; background:var(--surface); }
 
 /* Auth */
 .mv-auth-page { min-height:100vh; display:grid; grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr); background:#060a11; }
@@ -77,3 +77,21 @@
 .mv-auth-brand h1 { font-size:clamp(2.2rem,5vw,4.2rem); font-weight:900; letter-spacing:-.05em; margin-top:1.5rem; }
 .mv-auth-form-shell { display:grid; place-items:center; padding:2rem; }
 .mv-auth-card { width:min(460px,100%); background:var(--surface); border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow); }
+.mv-image-preview {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: #0b111b;
+}
+
+.mv-profile-edit-preview {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+}

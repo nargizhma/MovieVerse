@@ -9,17 +9,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   await render(show);
 
   async function render(s){
-    const e=MV.ui.escapeHtml;
+    const e=MV.ui.escapeHtml, optional=MV.ui.optionalText;
     const start=MV.media.year(s.releaseDate),end=s.endDate?MV.media.year(s.endDate):"";
+    const originalTitle=optional(s.originalTitle), contentRating=optional(s.contentRating), synopsis=optional(s.synopsis), trailerUrl=optional(s.trailerUrl), storyline=optional(s.storyline);
+    const poster=MV.media.tvShowImageUrl(s.posterUrl);
     const years=end&&end!==start?`${start}–${end}`:start;
     const castHtml=s.cast?.length?await MV.media.castCards(s.cast):"";
     root.innerHTML=`
-      <section class="mv-detail-hero"><div class="mv-detail-hero-bg" style="background-image:url('${e(MV.media.imageUrl(s.posterUrl))}')"></div><div class="mv-container mv-detail-hero-inner">
-        <h1 class="mv-detail-title">${e(s.title)}</h1>${s.originalTitle&&s.originalTitle!==s.title?`<div class="text-secondary mb-1">Original title: ${e(s.originalTitle)}</div>`:""}
-        <div class="mv-title-meta"><span>TV Series</span><span>•</span><span>${e(years)}</span>${s.contentRating?`<span>•</span><span>${e(s.contentRating)}</span>`:""}${s.runtimeMinutes?`<span>•</span><span>${e(MV.media.runtime(s.runtimeMinutes))}</span>`:""}</div>
+      <section class="mv-detail-hero"><div class="mv-detail-hero-bg" style="background-image:url('${e(poster)}')"></div><div class="mv-container mv-detail-hero-inner">
+        <h1 class="mv-detail-title">${e(s.title)}</h1>${originalTitle&&originalTitle!==s.title?`<div class="text-secondary mb-1">Original title: ${e(originalTitle)}</div>`:""}
+        <div class="mv-title-meta"><span>TV Series</span><span>•</span><span>${e(years)}</span>${contentRating?`<span>•</span><span>${e(contentRating)}</span>`:""}${s.runtimeMinutes?`<span>•</span><span>${e(MV.media.runtime(s.runtimeMinutes))}</span>`:""}</div>
         <div class="mv-detail-layout">
-          <img class="mv-detail-poster" src="${e(MV.media.imageUrl(s.posterUrl))}" alt="${e(s.title)} poster">
-          <div><div class="mv-trailer-shell">${MV.media.trailerHtml(s.trailerUrl,`${s.title} trailer`)}</div><div class="mv-genre-row">${(s.genres||[]).map(g=>`<a class="mv-genre-pill" href="search.html?genreId=${g.id}&type=TVShow">${e(g.name)}</a>`).join("")}</div><p class="fs-5 mb-0">${e(s.synopsis)}</p></div>
+          <img class="mv-detail-poster" src="${e(poster)}" ${MV.media.imageFallbackAttributes("movie")} alt="${e(s.title)} poster">
+          <div><div class="mv-trailer-shell">${MV.media.trailerHtml(trailerUrl,`${s.title} trailer`)}</div><div class="mv-genre-row">${(s.genres||[]).map(g=>`<a class="mv-genre-pill" href="search.html?genreId=${g.id}&type=TVShow">${e(g.name)}</a>`).join("")}</div>${synopsis?`<p class="fs-5 mb-0">${e(synopsis)}</p>`:""}</div>
           <aside class="mv-action-panel">
             <div class="mv-score"><i class="fa-solid fa-star fa-xl" style="color:#f3ce55"></i><div><strong id="tvAvgRating">${MV.media.rating(s.averageRating)}</strong><div class="mv-score-label">MovieVerse rating · ${s.reviewCount} ratings</div></div></div>
             <div class="mv-score"><i class="fa-regular fa-star fa-xl" style="color:var(--accent-hover)"></i><div><strong id="tvYourRating">—</strong><div class="mv-score-label">Your rating</div></div></div>
@@ -34,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <section class="mv-section"><h2 class="mv-section-title">Cast</h2>${castHtml?`<div class="mv-cast-row">${castHtml}</div>`:MV.ui.emptyState({icon:"fa-users",title:"No cast listed yet"})}</section>
         <section class="mv-section"><div class="d-flex justify-content-between align-items-center gap-2 mb-3"><h2 class="mv-section-title mb-0">User Reviews</h2><button class="btn btn-outline-primary" id="writeTvReview"><i class="fa-regular fa-pen-to-square me-2"></i>Write review</button></div><div id="tvReviews">${MV.ui.skeletonLines(4)}</div></section>
         <section class="mv-section"><h2 class="mv-section-title">More Like This</h2><div id="tvSimilar" class="mv-card-row">${MV.ui.skeletonCards(6)}</div></section>
-        ${s.storyline?`<section class="mv-section"><h2 class="mv-section-title">Storyline</h2><div class="mv-surface p-3"><p class="mb-0">${e(s.storyline)}</p></div></section>`:""}
+        ${storyline?`<section class="mv-section"><h2 class="mv-section-title">Storyline</h2><div class="mv-surface p-3"><p class="mb-0">${e(storyline)}</p></div></section>`:""}
         <section class="mv-section" id="tvDetailsSection"></section>
       </div></main>`;
     bindTopActions();renderAdditional(s);await Promise.all([refreshMyRating(),loadReviews(),loadSimilar(),loadSeasons(s.seasons||[])]);
@@ -75,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function renderEpisodes(episodes,seasonNumber){
     const list=document.getElementById("episodeList");
     if(!episodes.length){list.innerHTML=MV.ui.emptyState({icon:"fa-list-ol",title:"No episodes yet"});return;}
-    list.innerHTML=`<div class="mv-episode-list">${[...episodes].sort((a,b)=>a.episodeNumber-b.episodeNumber).map(ep=>`<article class="mv-episode-card" id="episode-${ep.id}"><img src="${MV.media.imageUrl(ep.imageUrl)}" alt="${MV.ui.escapeHtml(ep.title)}"><div><div class="text-secondary small">S${seasonNumber} · E${ep.episodeNumber}</div><h4>${MV.ui.escapeHtml(ep.title)}</h4><div class="text-secondary small mb-1">${ep.releaseDate?MV.media.date(ep.releaseDate):""}${ep.runtimeMinutes?` · ${MV.media.runtime(ep.runtimeMinutes)}`:""} · <span class="mv-rating-inline"><i class="fa-solid fa-star"></i> ${MV.media.rating(ep.averageRating)}</span></div>${ep.description?`<p class="text-secondary mb-0">${MV.ui.escapeHtml(ep.description)}</p>`:""}</div><button class="btn btn-outline-primary js-expand-episode" data-episode-id="${ep.id}" data-season-number="${seasonNumber}">Details</button><div class="mv-episode-detail d-none" id="episode-detail-${ep.id}" style="grid-column:1/-1"></div></article>`).join("")}</div>`;
+    list.innerHTML=`<div class="mv-episode-list">${[...episodes].sort((a,b)=>a.episodeNumber-b.episodeNumber).map(ep=>`<article class="mv-episode-card" id="episode-${ep.id}"><img src="${MV.media.episodeImageUrl(ep.imageUrl)}" ${MV.media.imageFallbackAttributes("movie")} alt="${MV.ui.escapeHtml(ep.title)}"><div><div class="text-secondary small">S${seasonNumber} · E${ep.episodeNumber}</div><h4>${MV.ui.escapeHtml(ep.title)}</h4><div class="text-secondary small mb-1">${ep.releaseDate?MV.media.date(ep.releaseDate):""}${ep.runtimeMinutes?` · ${MV.media.runtime(ep.runtimeMinutes)}`:""} · <span class="mv-rating-inline"><i class="fa-solid fa-star"></i> ${MV.media.rating(ep.averageRating)}</span></div>${MV.ui.hasOptionalText(ep.description)?`<p class="text-secondary mb-0">${MV.ui.escapeHtml(MV.ui.optionalText(ep.description))}</p>`:""}</div><button class="btn btn-outline-primary js-expand-episode" data-episode-id="${ep.id}" data-season-number="${seasonNumber}">Details</button><div class="mv-episode-detail d-none" id="episode-detail-${ep.id}" style="grid-column:1/-1"></div></article>`).join("")}</div>`;
     list.querySelectorAll(".js-expand-episode").forEach(btn=>btn.addEventListener("click",()=>openEpisode(btn.dataset.episodeId,Number(btn.dataset.seasonNumber),false)));
   }
   async function openEpisode(episodeId,seasonNumber,deepLink){
@@ -84,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     panel.classList.remove("d-none");panel.innerHTML=MV.ui.skeletonLines(5);
     try{
       const ep=await MV.api.get(`episodes/${episodeId}`,null,{auth:false});const cast=ep.cast?.length?await MV.media.castCards(ep.cast):"";
-      panel.innerHTML=`<div class="d-flex flex-wrap justify-content-between gap-2 align-items-start"><div><div class="mv-kicker">S${ep.seasonNumber} · E${ep.episodeNumber}</div><h3 class="h5 mb-1">${MV.ui.escapeHtml(ep.title)}</h3><div class="text-secondary">${ep.releaseDate?MV.media.date(ep.releaseDate):""}${ep.runtimeMinutes?` · ${MV.media.runtime(ep.runtimeMinutes)}`:""} · <span class="mv-rating-inline"><i class="fa-solid fa-star"></i> <span id="epAvg-${ep.id}">${MV.media.rating(ep.averageRating)}</span></span> · ${ep.reviewCount} ratings</div></div><div class="d-flex gap-2"><button class="btn btn-sm btn-primary js-ep-rate"><i class="fa-regular fa-star me-1"></i>Rate</button><button class="btn btn-sm btn-outline-primary js-ep-review"><i class="fa-regular fa-pen-to-square me-1"></i>Review</button></div></div>${ep.description?`<p class="mt-3">${MV.ui.escapeHtml(ep.description)}</p>`:""}${ep.directors?.length?`<div class="mv-crew-line"><strong>Directors</strong> ${ep.directors.map(x=>`<a href="person-details.html?type=director&id=${x.id}">${MV.ui.escapeHtml(x.fullName)}</a>`).join(", ")}</div>`:""}${ep.writers?.length?`<div class="mv-crew-line"><strong>Writers</strong> ${ep.writers.map(x=>`<a href="person-details.html?type=writer&id=${x.id}">${MV.ui.escapeHtml(x.fullName)}</a>`).join(", ")}</div>`:""}${cast?`<h4 class="h6 mt-3">Cast</h4><div class="mv-cast-row">${cast}</div>`:""}<div class="mt-3"><h4 class="h6">Written reviews</h4><div id="epReviews-${ep.id}">${MV.ui.skeletonLines(2)}</div></div>`;
+      panel.innerHTML=`<div class="d-flex flex-wrap justify-content-between gap-2 align-items-start"><div><div class="mv-kicker">S${ep.seasonNumber} · E${ep.episodeNumber}</div><h3 class="h5 mb-1">${MV.ui.escapeHtml(ep.title)}</h3><div class="text-secondary">${ep.releaseDate?MV.media.date(ep.releaseDate):""}${ep.runtimeMinutes?` · ${MV.media.runtime(ep.runtimeMinutes)}`:""} · <span class="mv-rating-inline"><i class="fa-solid fa-star"></i> <span id="epAvg-${ep.id}">${MV.media.rating(ep.averageRating)}</span></span> · ${ep.reviewCount} ratings</div></div><div class="d-flex gap-2"><button class="btn btn-sm btn-primary js-ep-rate"><i class="fa-regular fa-star me-1"></i>Rate</button><button class="btn btn-sm btn-outline-primary js-ep-review"><i class="fa-regular fa-pen-to-square me-1"></i>Review</button></div></div>${MV.ui.hasOptionalText(ep.description)?`<p class="mt-3">${MV.ui.escapeHtml(MV.ui.optionalText(ep.description))}</p>`:""}${ep.directors?.length?`<div class="mv-crew-line"><strong>Directors</strong> ${ep.directors.map(x=>`<a href="person-details.html?type=director&id=${x.id}">${MV.ui.escapeHtml(x.fullName)}</a>`).join(", ")}</div>`:""}${ep.writers?.length?`<div class="mv-crew-line"><strong>Writers</strong> ${ep.writers.map(x=>`<a href="person-details.html?type=writer&id=${x.id}">${MV.ui.escapeHtml(x.fullName)}</a>`).join(", ")}</div>`:""}${cast?`<h4 class="h6 mt-3">Cast</h4><div class="mv-cast-row">${cast}</div>`:""}<div class="mt-3"><h4 class="h6">Written reviews</h4><div id="epReviews-${ep.id}">${MV.ui.skeletonLines(2)}</div></div>`;
       panel.dataset.loaded="true";
       panel.querySelector(".js-ep-rate").addEventListener("click",()=>MV.rating.open({type:"episode",id:ep.id,title:`${show.title}: ${ep.title}`,onSaved:()=>refreshEpisode(ep.id)}));
       panel.querySelector(".js-ep-review").addEventListener("click",()=>MV.reviews.openEditor({type:"episode",id:ep.id,title:`${show.title}: ${ep.title}`,onSaved:()=>refreshEpisode(ep.id)}));
@@ -95,8 +97,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function refreshEpisode(epId){await loadEpisodeReviews(epId);try{const ep=await MV.api.get(`episodes/${epId}`,null,{auth:false});const avg=document.getElementById(`epAvg-${epId}`);if(avg)avg.textContent=MV.media.rating(ep.averageRating);}catch{}}
 
   function renderAdditional(s){
-    const rows=[["Release date",MV.media.date(s.releaseDate)],["End date",MV.media.date(s.endDate)],["Original language",s.originalLanguage],["Country of origin",s.countryOfOrigin],["Production company",s.productionCompany],["Color",s.color]].filter(([,v])=>v&&String(v).trim());
-    const host=document.getElementById("tvDetailsSection");if(!rows.length&&!s.trivia)return;
-    host.innerHTML=`<h2 class="mv-section-title">Details</h2><dl class="mv-details-list mv-surface px-3">${rows.map(([k,v])=>`<div class="row"><dt class="col-sm-4">${MV.ui.escapeHtml(k)}</dt><dd class="col-sm-8">${MV.ui.escapeHtml(v)}</dd></div>`).join("")}</dl>${s.trivia?`<h2 class="mv-section-title mt-4">Did you know?</h2><div class="mv-surface p-3"><strong>Trivia</strong><p class="text-secondary mt-2 mb-0">${MV.ui.escapeHtml(s.trivia)}</p></div>`:""}`;
+    const optional=MV.ui.optionalText;
+    const rows=[
+      ["Release date",MV.media.date(s.releaseDate)],
+      ["End date",s.endDate?MV.media.date(s.endDate):""],
+      ["Original language",optional(s.originalLanguage)],
+      ["Country of origin",optional(s.countryOfOrigin)],
+      ["Production company",optional(s.productionCompany)],
+      ["Color",optional(s.color)]
+    ].filter(([,v])=>v!==null&&v!==undefined&&String(v).trim()!=="");
+    const trivia=optional(s.trivia);
+    const host=document.getElementById("tvDetailsSection");if(!host)return;
+    if(!rows.length&&!trivia){host.innerHTML="";return;}
+    host.innerHTML=`<h2 class="mv-section-title">Details</h2><dl class="mv-details-list mv-surface px-3">${rows.map(([k,v])=>`<div class="row"><dt class="col-sm-4">${MV.ui.escapeHtml(k)}</dt><dd class="col-sm-8">${MV.ui.escapeHtml(v)}</dd></div>`).join("")}</dl>${trivia?`<h2 class="mv-section-title mt-4">Did you know?</h2><div class="mv-surface p-3"><strong>Trivia</strong><p class="text-secondary mt-2 mb-0">${MV.ui.escapeHtml(trivia)}</p></div>`:""}`;
   }
 });

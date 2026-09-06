@@ -23,5 +23,7 @@ public class EpisodeActorConfiguration : IEntityTypeConfiguration<EpisodeActor>
         builder
             .HasIndex(x => new { x.EpisodeId, x.ActorId })
             .IsUnique();
+        builder.Property(x => x.CharacterName)
+            .HasMaxLength(200);
     }
 }

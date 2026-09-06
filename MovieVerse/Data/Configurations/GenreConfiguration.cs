@@ -6,9 +6,14 @@ namespace MovieVerse.Data.Configurations
 {
     public class GenreConfiguration : IEntityTypeConfiguration<Genre>
     {
-        public void Configure(EntityTypeBuilder<Genre> builder)
+        public void Configure(
+            EntityTypeBuilder<Genre> builder)
         {
-            builder.HasIndex(x => x.Name).IsUnique();
+            builder.Property(x => x.Name)
+                .HasMaxLength(100);
+
+            builder.HasIndex(x => x.Name)
+                .IsUnique();
         }
     }
 }

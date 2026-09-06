@@ -25,5 +25,7 @@ public class EpisodeReviewConfiguration : IEntityTypeConfiguration<EpisodeReview
             .IsUnique();
         builder.Property(x => x.Rating)
             .HasPrecision(3, 1);
+        builder.Property(x => x.Content)
+            .HasMaxLength(5000);
     }
 }

@@ -23,5 +23,7 @@ public class MovieActorConfiguration : IEntityTypeConfiguration<MovieActor>
         builder
             .HasIndex(x => new { x.MovieId, x.ActorId })
             .IsUnique();
+        builder.Property(x => x.CharacterName)
+            .HasMaxLength(200);
     }
 }

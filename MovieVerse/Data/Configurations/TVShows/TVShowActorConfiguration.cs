@@ -23,5 +23,7 @@ public class TVShowActorConfiguration : IEntityTypeConfiguration<TVShowActor>
         builder
             .HasIndex(x => new { x.TVShowId, x.ActorId })
             .IsUnique();
+        builder.Property(x => x.CharacterName)
+            .HasMaxLength(200);
     }
 }

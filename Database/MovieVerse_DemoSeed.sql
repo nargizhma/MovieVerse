@@ -2,7 +2,6 @@
 -- Poster/Profile/Image URL values are intentionally left NULL.
 -- Identity users are NOT created here. Register users through the app so ASP.NET Identity creates valid password hashes/roles.
 -- Reviews/watchlist/history are added only when existing AspNetUsers are found.
-
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 

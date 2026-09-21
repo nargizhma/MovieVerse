@@ -35,7 +35,17 @@ img { max-width: 100%; }
 .mv-brand img { width: 170px; height: 52px; object-fit: contain; }
 .mv-nav-link { color: var(--text-secondary); font-weight: 700; border-radius: .65rem; padding: .55rem .75rem !important; }
 .mv-nav-link:hover, .mv-nav-link.active { color: #fff; background: var(--surface); }
-.mv-nav-avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); border: 1px solid rgba(69,210,232,.3); color: var(--accent-hover); font-weight: 800; }
+.mv-nav-avatar {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  background: var(--surface);
+  border: 1px solid rgba(69,210,232,.3);
+}
 
 .form-control, .form-select, .form-check-input, .input-group-text {
   color: var(--text-primary);

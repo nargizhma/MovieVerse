@@ -93,6 +93,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       await MV.api.put("profiles/me",fd);
       MV.ui.toast("Profile updated","success");
       profile=await MV.api.get("profiles/me");
+      MV.navbar.refreshAvatar?.();
       renderShell();
       renderAll();
       activateHash();
@@ -103,6 +104,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  async function deleteImage(){const ok=await MV.ui.confirm({title:"Remove profile image?",message:"Your current profile image will be deleted.",confirmText:"Remove image"});if(!ok)return;try{await MV.api.delete("profiles/me/image");MV.ui.toast("Profile image removed","success");profile=await MV.api.get("profiles/me");renderShell();renderAll();activateHash();}catch(err){MV.ui.showError(err);}}
+  async function deleteImage() {
+  const ok = await MV.ui.confirm({
+    title: "Remove profile image?",
+    message: "Your current profile image will be deleted.",
+    confirmText: "Remove image"
+  });
+
+  if (!ok) return;
+
+  try {
+    await MV.api.delete("profiles/me/image");
+
+    MV.ui.toast("Profile image removed", "success");
+
+    profile = await MV.api.get("profiles/me");
+
+    MV.navbar.refreshAvatar?.();
+
+    renderShell();
+    renderAll();
+    activateHash();
+  }
+  catch (err) {
+    MV.ui.showError(err);
+  }
+}
   function activateHash(){const target=(location.hash||"#overview").slice(1);const button=document.querySelector(`[data-tab="${CSS.escape(target)}"]`);if(button)bootstrap.Tab.getOrCreateInstance(button).show();}
 });

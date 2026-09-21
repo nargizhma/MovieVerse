@@ -2,10 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MovieVerse.Abstractions.AI;
 using MovieVerse.Abstractions.Identity;
 using MovieVerse.Abstractions.Media;
 using MovieVerse.Abstractions.Persistence;
 using MovieVerse.Data;
+using MovieVerse.Infrastructure.AI;
 using MovieVerse.Infrastructure.Identity;
 using MovieVerse.Infrastructure.Media;
 using MovieVerse.Infrastructure.Persistence;
@@ -41,7 +43,13 @@ public static class DependencyInjection
         services.Configure<JwtSettings>(
             configuration.GetSection(
                 JwtSettings.SectionName));
+        services.Configure<GeminiSettings>(
+            configuration.GetSection(
+                GeminiSettings.SectionName));
 
+        services.AddHttpClient<
+            IFilmAiClient,
+            GeminiFilmAiClient>();
         services.AddScoped<
             IJwtService,
             JwtService>();

@@ -11,6 +11,9 @@ public static class DependencyInjection
         this IServiceCollection services)
     {
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<
+            IFilmChatService,
+            FilmChatService>();
 
         services.AddScoped<IMovieService, MovieService>();
         services.AddScoped<ITVShowService, TVShowService>();

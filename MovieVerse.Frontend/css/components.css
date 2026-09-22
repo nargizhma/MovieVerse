@@ -79,3 +79,282 @@
 
 /* All fallback-backed images crop to the shape of the component that contains them. */
 img[data-mv-placeholder-kind] { object-fit: cover; object-position: center; }
+/* MovieVerse AI chat */
+
+.mv-film-chat-button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1600;
+
+  width: 58px;
+  height: 58px;
+
+  border: 1px solid rgba(69, 210, 232, .45);
+  border-radius: 50%;
+
+  background: var(--accent-strong);
+  color: white;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 1.25rem;
+
+  box-shadow: var(--shadow);
+
+  transition:
+    transform .16s ease,
+    background .16s ease;
+}
+
+.mv-film-chat-button:hover {
+  transform: translateY(-2px);
+  background: var(--accent);
+}
+
+
+.mv-film-chat-panel {
+  position: fixed;
+
+  right: 24px;
+  bottom: 94px;
+
+  z-index: 1600;
+
+  width: min(390px, calc(100vw - 32px));
+  height: min(560px, calc(100vh - 130px));
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+
+  background: var(--bg-secondary);
+
+  box-shadow: var(--shadow);
+}
+
+
+.mv-film-chat-header {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  padding: .9rem 1rem;
+
+  border-bottom: 1px solid var(--border);
+
+  background: var(--surface);
+}
+
+
+.mv-film-chat-header strong {
+  display: block;
+  color: var(--text-primary);
+}
+
+
+.mv-film-chat-header small {
+  display: block;
+
+  margin-top: .1rem;
+
+  color: var(--text-secondary);
+
+  font-size: .75rem;
+}
+
+
+.mv-film-chat-header-btn {
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: .55rem;
+
+  background: transparent;
+  color: var(--text-secondary);
+
+  display: grid;
+  place-items: center;
+}
+
+
+.mv-film-chat-header-btn:hover {
+  background: var(--surface-hover);
+  color: white;
+}
+
+
+.mv-film-chat-messages {
+  flex: 1 1 auto;
+
+  overflow-y: auto;
+
+  padding: 1rem;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: .75rem;
+
+  scrollbar-width: thin;
+}
+
+
+.mv-film-chat-message {
+  display: flex;
+}
+
+
+.mv-film-chat-message.is-user {
+  justify-content: flex-end;
+}
+
+
+.mv-film-chat-message.is-model {
+  justify-content: flex-start;
+}
+
+
+.mv-film-chat-bubble {
+  max-width: 85%;
+
+  padding: .7rem .85rem;
+
+  border-radius: .9rem;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+
+  line-height: 1.45;
+
+  font-size: .9rem;
+}
+
+
+.mv-film-chat-message.is-user
+.mv-film-chat-bubble {
+  background: var(--accent-strong);
+  color: white;
+
+  border-bottom-right-radius: .25rem;
+}
+
+
+.mv-film-chat-message.is-model
+.mv-film-chat-bubble {
+  background: var(--surface);
+  color: var(--text-primary);
+
+  border: 1px solid var(--border);
+
+  border-bottom-left-radius: .25rem;
+}
+
+
+.mv-film-chat-form {
+  flex: 0 0 auto;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+
+  gap: .6rem;
+
+  padding: .8rem;
+
+  border-top: 1px solid var(--border);
+
+  background: var(--surface);
+}
+
+
+.mv-film-chat-form textarea {
+  resize: none;
+
+  max-height: 100px;
+
+  background: var(--bg-secondary);
+}
+
+
+.mv-film-chat-form button {
+  width: 44px;
+
+  align-self: stretch;
+}
+
+
+.mv-film-chat-typing {
+  display: flex;
+
+  gap: .3rem;
+
+  align-items: center;
+
+  min-height: 38px;
+}
+
+
+.mv-film-chat-typing span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--text-secondary);
+
+  animation:
+    mvFilmChatTyping 1s infinite ease-in-out;
+}
+
+
+.mv-film-chat-typing span:nth-child(2) {
+  animation-delay: .15s;
+}
+
+
+.mv-film-chat-typing span:nth-child(3) {
+  animation-delay: .3s;
+}
+
+
+@keyframes mvFilmChatTyping {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: .45;
+  }
+
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+
+@media (max-width: 575.98px) {
+  .mv-film-chat-button {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .mv-film-chat-panel {
+    right: 16px;
+    bottom: 84px;
+
+    width: calc(100vw - 32px);
+    height: min(560px, calc(100vh - 110px));
+  }
+}

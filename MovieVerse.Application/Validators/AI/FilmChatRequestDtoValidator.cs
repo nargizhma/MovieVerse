@@ -40,7 +40,11 @@ public class FilmChatRequestDtoValidator
 
                 message.RuleFor(x => x.Text)
                     .NotEmpty()
-                    .MaximumLength(1500);
+                    .WithMessage(
+                        "Chat message text cannot be empty.")
+                    .MaximumLength(6000)
+                    .WithMessage(
+                        "Chat history message cannot exceed 6000 characters.");
             });
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using MovieVerse.Extensions;
 using MovieVerse.Services.Interfaces;
 
@@ -10,53 +9,71 @@ namespace MovieVerse.Controllers;
 [ApiController]
 [Authorize]
 public class ReportsController(
-    IReportService reportService)
+    IReportService reportService,
+    IReportPaymentService paymentService)
     : ControllerBase
 {
-    [HttpGet("me")]
+    [HttpGet("purchase/{purchaseId:guid}")]
     [Produces("application/pdf")]
     [ProducesResponseType(
         StatusCodes.Status200OK)]
     public async Task<IActionResult>
-        GenerateMyReport()
+        GeneratePurchasedReport(
+            Guid purchaseId)
     {
         var userId =
             User.GetUserId();
 
 
-        var report =
-            await reportService
-                .GenerateMyReportAsync(
-                    userId);
+        var purchase =
+            await paymentService
+                .GetPaidPurchaseAsync(
+                    userId,
+                    purchaseId);
 
 
-        return File(
-            report.Content,
-            "application/pdf",
-            report.FileName);
-    }
+        if (
+            purchase.ReportType ==
+            "Personal")
+        {
+            var report =
+                await reportService
+                    .GenerateMyReportAsync(
+                        userId);
 
 
-    [HttpGet(
-        "person/{personType}/{personId:guid}")]
-    [Produces("application/pdf")]
-    [ProducesResponseType(
-        StatusCodes.Status200OK)]
-    public async Task<IActionResult>
-        GeneratePersonReport(
-            string personType,
-            Guid personId)
-    {
-        var report =
-            await reportService
-                .GeneratePersonReportAsync(
-                    personType,
-                    personId);
+            return File(
+                report.Content,
+                "application/pdf",
+                report.FileName);
+        }
 
 
-        return File(
-            report.Content,
-            "application/pdf",
-            report.FileName);
+        if (
+            purchase.ReportType ==
+                "Person"
+            &&
+            purchase.PersonId
+                .HasValue
+            &&
+            !string.IsNullOrWhiteSpace(
+                purchase.PersonType))
+        {
+            var report =
+                await reportService
+                    .GeneratePersonReportAsync(
+                        purchase.PersonType,
+                        purchase.PersonId.Value);
+
+
+            return File(
+                report.Content,
+                "application/pdf",
+                report.FileName);
+        }
+
+
+        throw new InvalidOperationException(
+            "The purchased report configuration is invalid.");
     }
 }

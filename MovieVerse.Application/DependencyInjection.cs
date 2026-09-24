@@ -106,6 +106,9 @@ public static class DependencyInjection
         services.AddScoped<
             IReportService,
             ReportService>();
+        services.AddScoped<
+            IReportPaymentService,
+            ReportPaymentService>();
 
         services.AddValidatorsFromAssembly(
             typeof(DependencyInjection)

@@ -14,6 +14,8 @@ public class AppDbContext: IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
         : base(options)
     {
     }
+    public DbSet<ReportPurchase> ReportPurchases { get; set; }
+
     // Users
     public DbSet<UserProfile> UserProfiles { get; set; }
 

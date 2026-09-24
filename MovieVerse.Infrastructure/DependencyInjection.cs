@@ -6,6 +6,7 @@ using MovieVerse.Abstractions.AI;
 using MovieVerse.Abstractions.Email;
 using MovieVerse.Abstractions.Identity;
 using MovieVerse.Abstractions.Media;
+using MovieVerse.Abstractions.Payments;
 using MovieVerse.Abstractions.Persistence;
 using MovieVerse.Abstractions.Reports;
 using MovieVerse.Data;
@@ -13,6 +14,7 @@ using MovieVerse.Infrastructure.AI;
 using MovieVerse.Infrastructure.Email;
 using MovieVerse.Infrastructure.Identity;
 using MovieVerse.Infrastructure.Media;
+using MovieVerse.Infrastructure.Payments;
 using MovieVerse.Infrastructure.Persistence;
 using MovieVerse.Infrastructure.Reports;
 using MovieVerse.Models;
@@ -22,6 +24,7 @@ using MovieVerse.Services;
 using MovieVerse.Services.Interfaces;
 using MovieVerse.Settings;
 using QuestPDF.Infrastructure;
+
 
 namespace MovieVerse.Infrastructure;
 
@@ -116,7 +119,35 @@ public static class DependencyInjection
         services.AddSingleton<
             IPdfReportGenerator,
             QuestPdfReportGenerator>();
+        services.Configure<StripeSettings>(
+    configuration.GetSection(
+        StripeSettings.SectionName));
 
+
+        var stripeSettings =
+            configuration
+                .GetSection(
+                    StripeSettings.SectionName)
+                .Get<StripeSettings>()
+            ?? throw new InvalidOperationException(
+                "Stripe settings are missing.");
+
+
+        if (string.IsNullOrWhiteSpace(
+                stripeSettings.SecretKey))
+        {
+            throw new InvalidOperationException(
+                "Stripe secret key is missing.");
+        }
+
+
+        Stripe.StripeConfiguration.ApiKey =
+            stripeSettings.SecretKey;
+
+
+        services.AddScoped<
+            IReportPaymentGateway,
+            StripeReportPaymentGateway>();
 
         return services;
     }

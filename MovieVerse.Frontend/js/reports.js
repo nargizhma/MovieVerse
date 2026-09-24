@@ -2,28 +2,28 @@ window.MV = window.MV || {};
 
 MV.reports = (() => {
 
-  let searchController = null;
-  let searchTimer = null;
+    let searchController = null;
+    let searchTimer = null;
 
-  let lastPersonQuery = "";
-  let lastPeopleResults = [];
-
-
-
-  function ensureModal() {
-
-    if (
-      document.getElementById(
-        "mvReportModal"
-      )
-    ) {
-      return;
-    }
+    let lastPersonQuery = "";
+    let lastPeopleResults = [];
 
 
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      `
+
+    function ensureModal() {
+
+        if (
+            document.getElementById(
+                "mvReportModal"
+            )
+        ) {
+            return;
+        }
+
+
+        document.body.insertAdjacentHTML(
+            "beforeend",
+            `
       <div
         class="modal fade"
         id="mvReportModal"
@@ -103,99 +103,99 @@ MV.reports = (() => {
 
       </div>
       `
-    );
-
-
-    const modalElement =
-      document.getElementById(
-        "mvReportModal"
-      );
-
-
-
-    modalElement.addEventListener(
-      "hidden.bs.modal",
-      () => {
-
-        if (searchController) {
-          searchController.abort();
-          searchController = null;
-        }
-
-        clearTimeout(
-          searchTimer
         );
 
-        lastPersonQuery = "";
-        lastPeopleResults = [];
+
+        const modalElement =
+            document.getElementById(
+                "mvReportModal"
+            );
+
+
+
+        modalElement.addEventListener(
+            "hidden.bs.modal",
+            () => {
+
+                if (searchController) {
+                    searchController.abort();
+                    searchController = null;
+                }
+
+                clearTimeout(
+                    searchTimer
+                );
+
+                lastPersonQuery = "";
+                lastPeopleResults = [];
+
+                renderHome();
+            }
+        );
+
 
         renderHome();
-      }
-    );
+    }
 
 
-    renderHome();
-  }
+    function setHeader(
+        title,
+        subtitle,
+        icon = "fa-regular fa-file-pdf"
+    ) {
+
+        const titleElement =
+            document.getElementById(
+                "mvReportModalTitle"
+            );
 
 
-  function setHeader(
-    title,
-    subtitle,
-    icon = "fa-regular fa-file-pdf"
-  ) {
-
-    const titleElement =
-      document.getElementById(
-        "mvReportModalTitle"
-      );
+        const subtitleElement =
+            document.getElementById(
+                "mvReportModalSubtitle"
+            );
 
 
-    const subtitleElement =
-      document.getElementById(
-        "mvReportModalSubtitle"
-      );
+        if (titleElement) {
 
-
-    if (titleElement) {
-
-      titleElement.innerHTML = `
+            titleElement.innerHTML = `
         <i
           class="${MV.ui.escapeHtml(icon)} me-2">
         </i>
 
         ${MV.ui.escapeHtml(title)}
       `;
+        }
+
+
+        if (subtitleElement) {
+
+            subtitleElement.textContent =
+                subtitle;
+        }
     }
 
 
-    if (subtitleElement) {
 
-      subtitleElement.textContent =
-        subtitle;
-    }
-  }
+    function renderHome() {
 
-
-
-  function renderHome() {
-
-    const body =
-      document.getElementById(
-        "mvReportModalBody"
-      );
+        const body =
+            document.getElementById(
+                "mvReportModalBody"
+            );
 
 
-    if (!body)
-      return;
+        if (!body)
+            return;
 
 
-    setHeader(
-      "Create MovieVerse Report",
-      "Turn MovieVerse information into a structured PDF report."
-    );
+        setHeader(
+            "Create MovieVerse Report",
+            "Turn MovieVerse information into a structured PDF report."
+        );
 
 
-    body.innerHTML = `
+        body.innerHTML = `
 
       <div class="row g-3">
 
@@ -238,18 +238,17 @@ MV.reports = (() => {
             </p>
 
 
-            <span
-              class="mv-report-action">
+            <span class="mv-report-action">
 
-              Create my report
+            $0.99 · Continue to payment
 
-              <i
+            <i
                 class="
-                  fa-solid
-                  fa-arrow-right
-                  ms-1
+                fa-solid
+                fa-arrow-right
+                ms-1
                 ">
-              </i>
+            </i>
 
             </span>
 
@@ -342,51 +341,50 @@ MV.reports = (() => {
     `;
 
 
-    document
-      .getElementById(
-        "mvMyReport"
-      )
-      ?.addEventListener(
-        "click",
-        generateMyReport
-      );
+        document
+            .getElementById(
+                "mvMyReport"
+            )
+            ?.addEventListener(
+                "click",
+                startMyReportCheckout
+            );
+
+        document
+            .getElementById(
+                "mvPersonReport"
+            )
+            ?.addEventListener(
+                "click",
+                () =>
+                    renderPersonSearch()
+            );
+    }
 
 
-    document
-      .getElementById(
-        "mvPersonReport"
-      )
-      ?.addEventListener(
-        "click",
-        () =>
-          renderPersonSearch()
-      );
-  }
+
+    function renderPersonSearch(
+        restoreQuery = ""
+    ) {
+
+        const body =
+            document.getElementById(
+                "mvReportModalBody"
+            );
 
 
-
-  function renderPersonSearch(
-    restoreQuery = ""
-  ) {
-
-    const body =
-      document.getElementById(
-        "mvReportModalBody"
-      );
+        if (!body)
+            return;
 
 
-    if (!body)
-      return;
+        setHeader(
+            "Person Report",
+            "Search MovieVerse actors, directors and writers.",
+            "fa-solid fa-user-tie"
+        );
 
 
-    setHeader(
-      "Person Report",
-      "Search MovieVerse actors, directors and writers.",
-      "fa-solid fa-user-tie"
-    );
-
-
-    body.innerHTML = `
+        body.innerHTML = `
 
       <button
         type="button"
@@ -499,130 +497,130 @@ MV.reports = (() => {
     `;
 
 
-    document
-      .getElementById(
-        "mvReportBack"
-      )
-      ?.addEventListener(
-        "click",
-        renderHome
-      );
+        document
+            .getElementById(
+                "mvReportBack"
+            )
+            ?.addEventListener(
+                "click",
+                renderHome
+            );
 
 
-    const input =
-      document.getElementById(
-        "mvPersonSearchInput"
-      );
+        const input =
+            document.getElementById(
+                "mvPersonSearchInput"
+            );
 
 
-    input?.addEventListener(
-      "input",
-      () => {
+        input?.addEventListener(
+            "input",
+            () => {
 
-        clearTimeout(
-          searchTimer
+                clearTimeout(
+                    searchTimer
+                );
+
+
+                const query =
+                    input.value.trim();
+
+
+                lastPersonQuery =
+                    query;
+
+
+                if (query.length < 2) {
+
+                    if (searchController) {
+
+                        searchController.abort();
+
+                        searchController = null;
+                    }
+
+
+                    renderPersonSearchMessage(
+                        query.length === 0
+                            ? "Search for somebody in MovieVerse to create their report."
+                            : "Enter at least 2 characters."
+                    );
+
+                    return;
+                }
+
+
+                searchTimer =
+                    setTimeout(
+                        () =>
+                            searchPeople(query),
+                        300
+                    );
+            }
         );
 
 
-        const query =
-          input.value.trim();
+
+        if (restoreQuery) {
+
+            input.value =
+                restoreQuery;
 
 
-        lastPersonQuery =
-          query;
+            lastPersonQuery =
+                restoreQuery;
 
 
-        if (query.length < 2) {
+            if (
+                lastPeopleResults.length
+            ) {
 
-          if (searchController) {
+                renderPeopleResults(
+                    lastPeopleResults
+                );
+            }
+            else {
 
-            searchController.abort();
-
-            searchController = null;
-          }
-
-
-          renderPersonSearchMessage(
-            query.length === 0
-              ? "Search for somebody in MovieVerse to create their report."
-              : "Enter at least 2 characters."
-          );
-
-          return;
+                searchPeople(
+                    restoreQuery
+                );
+            }
         }
 
 
-        searchTimer =
-          setTimeout(
-            () =>
-              searchPeople(query),
-            300
-          );
-      }
-    );
-
-
-
-    if (restoreQuery) {
-
-      input.value =
-        restoreQuery;
-
-
-      lastPersonQuery =
-        restoreQuery;
-
-
-      if (
-        lastPeopleResults.length
-      ) {
-
-        renderPeopleResults(
-          lastPeopleResults
+        setTimeout(
+            () => input?.focus(),
+            150
         );
-      }
-      else {
-
-        searchPeople(
-          restoreQuery
-        );
-      }
     }
 
 
-    setTimeout(
-      () => input?.focus(),
-      150
-    );
-  }
+
+    async function searchPeople(
+        query
+    ) {
+
+        const resultHost =
+            document.getElementById(
+                "mvPersonSearchResults"
+            );
 
 
-
-  async function searchPeople(
-    query
-  ) {
-
-    const resultHost =
-      document.getElementById(
-        "mvPersonSearchResults"
-      );
+        if (!resultHost)
+            return;
 
 
-    if (!resultHost)
-      return;
+        if (searchController) {
+
+            searchController.abort();
+        }
 
 
-    if (searchController) {
-
-      searchController.abort();
-    }
+        searchController =
+            new AbortController();
 
 
-    searchController =
-      new AbortController();
-
-
-    resultHost.innerHTML = `
+        resultHost.innerHTML = `
 
       <div
         class="
@@ -642,55 +640,55 @@ MV.reports = (() => {
     `;
 
 
-    try {
+        try {
 
-      const data =
-        await MV.api.get(
-          "search",
-          {
-            query,
-            limit: 10
-          },
-          {
-            signal:
-              searchController.signal,
+            const data =
+                await MV.api.get(
+                    "search",
+                    {
+                        query,
+                        limit: 10
+                    },
+                    {
+                        signal:
+                            searchController.signal,
 
-            auth: false
-          }
-        );
-
-
-      const people = [
-
-        ...(data?.actors || []),
-
-        ...(data?.directors || []),
-
-        ...(data?.writers || [])
-
-      ];
+                        auth: false
+                    }
+                );
 
 
-      lastPeopleResults =
-        people;
+            const people = [
+
+                ...(data?.actors || []),
+
+                ...(data?.directors || []),
+
+                ...(data?.writers || [])
+
+            ];
 
 
-      renderPeopleResults(
-        people
-      );
-
-    }
-    catch (error) {
-
-      if (
-        error?.name ===
-        "AbortError"
-      ) {
-        return;
-      }
+            lastPeopleResults =
+                people;
 
 
-      resultHost.innerHTML = `
+            renderPeopleResults(
+                people
+            );
+
+        }
+        catch (error) {
+
+            if (
+                error?.name ===
+                "AbortError"
+            ) {
+                return;
+            }
+
+
+            resultHost.innerHTML = `
 
         <div
           class="
@@ -707,37 +705,36 @@ MV.reports = (() => {
             ">
           </i>
 
-          ${
-            MV.ui.escapeHtml(
-              error?.detail ||
-              error?.message ||
-              "Could not search for people."
+          ${MV.ui.escapeHtml(
+                error?.detail ||
+                error?.message ||
+                "Could not search for people."
             )
-          }
+                }
 
         </div>
       `;
+        }
     }
-  }
 
 
-  function renderPeopleResults(
-    people
-  ) {
+    function renderPeopleResults(
+        people
+    ) {
 
-    const resultHost =
-      document.getElementById(
-        "mvPersonSearchResults"
-      );
-
-
-    if (!resultHost)
-      return;
+        const resultHost =
+            document.getElementById(
+                "mvPersonSearchResults"
+            );
 
 
-    if (!people.length) {
+        if (!resultHost)
+            return;
 
-      resultHost.innerHTML = `
+
+        if (!people.length) {
+
+            resultHost.innerHTML = `
 
         <div
           class="
@@ -759,11 +756,11 @@ MV.reports = (() => {
         </div>
       `;
 
-      return;
-    }
+            return;
+        }
 
 
-    resultHost.innerHTML = `
+        resultHost.innerHTML = `
 
       <div
         class="
@@ -771,11 +768,10 @@ MV.reports = (() => {
           mb-2
         ">
 
-        ${
-          people.length === 1
-            ? "1 person found"
-            : `${people.length} people found`
-        }
+        ${people.length === 1
+                ? "1 person found"
+                : `${people.length} people found`
+            }
 
       </div>
 
@@ -785,71 +781,70 @@ MV.reports = (() => {
           mv-report-person-list
         ">
 
-        ${
-          people
-            .map(
-              (person, index) =>
-                personResultHtml(
-                  person,
-                  index
+        ${people
+                .map(
+                    (person, index) =>
+                        personResultHtml(
+                            person,
+                            index
+                        )
                 )
-            )
-            .join("")
-        }
+                .join("")
+            }
 
       </div>
     `;
 
 
-    resultHost
-      .querySelectorAll(
-        "[data-person-index]"
-      )
-      .forEach(
-        button => {
+        resultHost
+            .querySelectorAll(
+                "[data-person-index]"
+            )
+            .forEach(
+                button => {
 
-          button.addEventListener(
-            "click",
-            () => {
+                    button.addEventListener(
+                        "click",
+                        () => {
 
-              const index =
-                Number(
-                  button.dataset
-                    .personIndex
+                            const index =
+                                Number(
+                                    button.dataset
+                                        .personIndex
+                                );
+
+
+                            const person =
+                                people[index];
+
+
+                            if (!person)
+                                return;
+
+
+                            renderSelectedPerson(
+                                person
+                            );
+                        }
+                    );
+                }
+            );
+    }
+
+
+    function personResultHtml(
+        person,
+        index
+    ) {
+
+        const imageUrl =
+            MV.media
+                .searchResultImageUrl(
+                    person
                 );
 
 
-              const person =
-                people[index];
-
-
-              if (!person)
-                return;
-
-
-              renderSelectedPerson(
-                person
-              );
-            }
-          );
-        }
-      );
-  }
-
-
-  function personResultHtml(
-    person,
-    index
-  ) {
-
-    const imageUrl =
-      MV.media
-        .searchResultImageUrl(
-          person
-        );
-
-
-    return `
+        return `
 
       <button
         type="button"
@@ -860,25 +855,22 @@ MV.reports = (() => {
 
 
         <img
-          src="${
-            MV.ui.escapeHtml(
-              imageUrl
-            )
-          }"
+          src="${MV.ui.escapeHtml(
+            imageUrl
+        )
+            }"
 
-          ${
-            MV.media
-              .imageFallbackAttributes(
-                "people",
-                false
-              )
-          }
+          ${MV.media
+                .imageFallbackAttributes(
+                    "people",
+                    false
+                )
+            }
 
-          alt="${
-            MV.ui.escapeHtml(
-              person.title
+          alt="${MV.ui.escapeHtml(
+                person.title
             )
-          }">
+            }">
 
 
         <div
@@ -888,10 +880,9 @@ MV.reports = (() => {
 
           <strong>
 
-            ${
-              MV.ui.escapeHtml(
+            ${MV.ui.escapeHtml(
                 person.title
-              )
+            )
             }
 
           </strong>
@@ -899,10 +890,9 @@ MV.reports = (() => {
 
           <span>
 
-            ${
-              MV.ui.escapeHtml(
+            ${MV.ui.escapeHtml(
                 person.resultType
-              )
+            )
             }
 
           </span>
@@ -926,24 +916,24 @@ MV.reports = (() => {
 
       </button>
     `;
-  }
+    }
 
 
-  function renderPersonSearchMessage(
-    message
-  ) {
+    function renderPersonSearchMessage(
+        message
+    ) {
 
-    const resultHost =
-      document.getElementById(
-        "mvPersonSearchResults"
-      );
-
-
-    if (!resultHost)
-      return;
+        const resultHost =
+            document.getElementById(
+                "mvPersonSearchResults"
+            );
 
 
-    resultHost.innerHTML = `
+        if (!resultHost)
+            return;
+
+
+        resultHost.innerHTML = `
 
       <div
         class="
@@ -959,817 +949,580 @@ MV.reports = (() => {
 
         <span>
 
-          ${
-            MV.ui.escapeHtml(
-              message
-            )
-          }
+          ${MV.ui.escapeHtml(
+            message
+        )
+            }
 
         </span>
 
       </div>
     `;
-  }
+    }
 
-  function renderSelectedPerson(
-    person
-  ) {
+function renderSelectedPerson(
+  person
+) {
 
-    const body =
-      document.getElementById(
-        "mvReportModalBody"
-      );
-
-
-    if (!body)
-      return;
-
-
-    setHeader(
-      "Person Report",
-      "Review your selection before generating the report.",
-      "fa-solid fa-user-tie"
+  const body =
+    document.getElementById(
+      "mvReportModalBody"
     );
 
 
-    const imageUrl =
-      MV.media
-        .searchResultImageUrl(
-          person
-        );
+  if (!body)
+    return;
 
 
-    body.innerHTML = `
+  setHeader(
+    "Person Report",
+    "Review your selection before continuing to payment.",
+    "fa-solid fa-user-tie"
+  );
 
-      <button
-        type="button"
+
+  const imageUrl =
+    MV.media
+      .searchResultImageUrl(
+        person
+      );
+
+
+  body.innerHTML = `
+
+    <button
+      type="button"
+      class="
+        btn
+        btn-sm
+        btn-outline-secondary
+        mv-report-back
+        mb-4
+      "
+      id="mvBackToPersonSearch">
+
+      <i
         class="
-          btn
-          btn-sm
-          btn-outline-secondary
-          mv-report-back
-          mb-4
-        "
-        id="mvBackToPersonSearch">
+          fa-solid
+          fa-arrow-left
+          me-1
+        ">
+      </i>
 
-        <i
-          class="
-            fa-solid
-            fa-arrow-left
-            me-1
-          ">
-        </i>
+      Back to search
 
-        Back to search
+    </button>
 
-      </button>
+
+    <div
+      class="
+        mv-report-selected-person
+      ">
 
 
       <div
         class="
-          mv-report-selected-person
+          mv-report-selected-header
         ">
+
+        <img
+          src="${
+            MV.ui.escapeHtml(
+              imageUrl
+            )
+          }"
+
+          ${
+            MV.media
+              .imageFallbackAttributes(
+                "people",
+                false
+              )
+          }
+
+          alt="${
+            MV.ui.escapeHtml(
+              person.title
+            )
+          }">
+
+
+        <div>
+
+          <span
+            class="
+              badge
+              mv-report-person-type
+              mb-2
+            ">
+
+            ${
+              MV.ui.escapeHtml(
+                person.resultType
+              )
+            }
+
+          </span>
+
+
+          <h4 class="mb-1">
+
+            ${
+              MV.ui.escapeHtml(
+                person.title
+              )
+            }
+
+          </h4>
+
+
+          <p
+            class="
+              text-secondary
+              mb-0
+            ">
+
+            MovieVerse person report
+
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="
+          mv-report-includes
+          mt-4
+        ">
+
+        <h6>
+          Your report will include
+        </h6>
 
 
         <div
           class="
-            mv-report-selected-header
+            mv-report-includes-grid
           ">
 
-          <img
-            src="${
-              MV.ui.escapeHtml(
-                imageUrl
-              )
-            }"
+          <div>
 
-            ${
-              MV.media
-                .imageFallbackAttributes(
-                  "people",
-                  false
-                )
-            }
+            <i
+              class="
+                fa-solid
+                fa-address-card
+              ">
+            </i>
 
-            alt="${
-              MV.ui.escapeHtml(
-                person.title
-              )
-            }">
+            Biography and
+            personal information
+
+          </div>
 
 
           <div>
 
-            <span
-              class="
-                badge
-                mv-report-person-type
-                mb-2
-              ">
-
-              ${
-                MV.ui.escapeHtml(
-                  person.resultType
-                )
-              }
-
-            </span>
-
-
-            <h4 class="mb-1">
-
-              ${
-                MV.ui.escapeHtml(
-                  person.title
-                )
-              }
-
-            </h4>
-
-
-            <p
-              class="
-                text-secondary
-                mb-0
-              ">
-
-              MovieVerse person report
-
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div
-          class="
-            mv-report-includes
-            mt-4
-          ">
-
-          <h6>
-            Your report will include
-          </h6>
-
-
-          <div
-            class="
-              mv-report-includes-grid
-            ">
-
-            <div>
-
-              <i
-                class="
-                  fa-solid
-                  fa-address-card
-                ">
-              </i>
-
-              Biography and
-              personal information
-
-            </div>
-
-
-            <div>
-
-              <i
-                class="
-                  fa-solid
-                  fa-film
-                ">
-              </i>
-
-              MovieVerse filmography
-
-            </div>
-
-
-            <div>
-
-              <i
-                class="
-                  fa-solid
-                  fa-circle-info
-                ">
-              </i>
-
-              Available career and
-              personal details
-
-            </div>
-
-
-            <div>
-
-              <i
-                class="
-                  fa-solid
-                  fa-file-pdf
-                ">
-              </i>
-
-              Structured PDF document
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div
-          class="
-            d-flex
-            justify-content-end
-            mt-4
-          ">
-
-          <button
-            type="button"
-            class="
-              btn
-              btn-primary
-              px-4
-            "
-            id="mvGeneratePersonReport">
-
             <i
               class="
-                fa-regular
-                fa-file-pdf
-                me-2
+                fa-solid
+                fa-film
               ">
             </i>
 
-            Generate report
+            MovieVerse filmography
 
-          </button>
+          </div>
+
+
+          <div>
+
+            <i
+              class="
+                fa-solid
+                fa-circle-info
+              ">
+            </i>
+
+            Available career and
+            personal details
+
+          </div>
+
+
+          <div>
+
+            <i
+              class="
+                fa-solid
+                fa-file-pdf
+              ">
+            </i>
+
+            Structured PDF document
+
+          </div>
 
         </div>
 
       </div>
-    `;
 
-
-    document
-      .getElementById(
-        "mvBackToPersonSearch"
-      )
-      ?.addEventListener(
-        "click",
-        () =>
-          renderPersonSearch(
-            lastPersonQuery
-          )
-      );
-
-
-    document
-      .getElementById(
-        "mvGeneratePersonReport"
-      )
-      ?.addEventListener(
-        "click",
-        event =>
-          generatePersonReport(
-            person,
-            event.currentTarget
-          )
-      );
-  }
-
-
-
-  async function generateMyReport() {
-
-    const button =
-      document.getElementById(
-        "mvMyReport"
-      );
-
-
-    if (!button)
-      return;
-
-
-    const oldHtml =
-      button.innerHTML;
-
-
-    button.disabled =
-      true;
-
-
-    button.innerHTML = `
 
       <div
         class="
-          mv-report-generating
+          d-flex
+          justify-content-end
+          mt-4
         ">
 
-        <span
+        <button
+          type="button"
           class="
-            spinner-border
-            spinner-border-sm
-          ">
-        </span>
+            btn
+            btn-primary
+            px-4
+          "
+          id="mvGeneratePersonReport">
 
-        <span>
-          Generating your report…
-        </span>
+          <i
+            class="
+              fa-solid
+              fa-credit-card
+              me-2
+            ">
+          </i>
+
+          $0.99 · Continue to payment
+
+        </button>
 
       </div>
-    `;
+
+    </div>
+  `;
 
 
-    try {
-
-      await openPdf(
-        "reports/me"
-      );
-
-
-      MV.ui.toast(
-        "Your MovieVerse report was generated.",
-        "success"
-      );
-
-
-      hideModal();
-
-    }
-    catch (error) {
-
-      MV.ui.showError(
-        error,
-        "Could not generate your report."
-      );
-
-    }
-    finally {
-
-      if (
-        document.body.contains(
-          button
+  document
+    .getElementById(
+      "mvBackToPersonSearch"
+    )
+    ?.addEventListener(
+      "click",
+      () =>
+        renderPersonSearch(
+          lastPersonQuery
         )
-      ) {
-
-        button.disabled =
-          false;
-
-        button.innerHTML =
-          oldHtml;
-      }
-    }
-  }
+    );
 
 
+  document
+    .getElementById(
+      "mvGeneratePersonReport"
+    )
+    ?.addEventListener(
+      "click",
+      event =>
+        startPersonReportCheckout(
+          person,
+          event.currentTarget
+        )
+    );
+}
 
-  async function generatePersonReport(
-    person,
-    button
-  ) {
+async function startMyReportCheckout() {
 
-    if (
-      !person?.id ||
-      !person?.resultType
-    ) {
-
-      MV.ui.toast(
-        "The selected person is invalid.",
-        "danger"
-      );
-
-      return;
-    }
-
-
-    const oldHtml =
-      button.innerHTML;
+  const button =
+    document.getElementById(
+      "mvMyReport"
+    );
 
 
-    button.disabled =
-      true;
+  if (!button)
+    return;
 
 
-    button.innerHTML = `
+  const oldHtml =
+    button.innerHTML;
+
+
+  button.disabled =
+    true;
+
+
+  button.innerHTML = `
+
+    <div
+      class="
+        mv-report-generating
+      ">
 
       <span
         class="
           spinner-border
           spinner-border-sm
-          me-2
         ">
       </span>
 
-      Generating…
-    `;
+
+      <span>
+        Opening Stripe Checkout…
+      </span>
+
+    </div>
+  `;
 
 
-    try {
+  try {
 
-      const type =
-        String(
-          person.resultType
-        )
-          .trim()
-          .toLowerCase();
+    await startCheckout({
+      reportType:
+        "Personal",
 
+      personType:
+        null,
 
-      const path =
-        `reports/person/${
-          encodeURIComponent(type)
-        }/${
-          encodeURIComponent(
-            person.id
-          )
-        }`;
+      personId:
+        null
+    });
 
+  }
+  catch (error) {
 
-      await openPdf(
-        path
-      );
+    MV.ui.showError(
+      error,
+      "Could not start payment."
+    );
 
 
-      MV.ui.toast(
-        `${person.title} report was generated.`,
-        "success"
-      );
+    if (
+      document.body.contains(
+        button
+      )
+    ) {
 
+      button.disabled =
+        false;
 
-      hideModal();
+      button.innerHTML =
+        oldHtml;
 
-    }
-    catch (error) {
-
-      MV.ui.showError(
-        error,
-        "Could not generate the person report."
-      );
-
-    }
-    finally {
-
-      if (
-        document.body.contains(
-          button
-        )
-      ) {
-
-        button.disabled =
-          false;
-
-        button.innerHTML =
-          oldHtml;
-      }
     }
   }
+}
 
 
+async function startPersonReportCheckout(
+  person,
+  button
+) {
 
-  async function openPdf(
-    path
+  if (
+    !person?.id ||
+    !person?.resultType
   ) {
 
-    const token =
-      MV.auth.getToken();
-
-
-    if (!token) {
-
-      location.href =
-        MV.auth.loginUrl();
-
-      return;
-    }
-
-
-
-    const pdfTab =
-      window.open(
-        "",
-        "_blank"
-      );
-
-
-    if (!pdfTab) {
-
-      throw new Error(
-        "The browser blocked the PDF tab. Please allow pop-ups for MovieVerse."
-      );
-    }
-
-
-
-    pdfTab.document.write(`
-      <!DOCTYPE html>
-
-      <html>
-
-        <head>
-
-          <meta charset="UTF-8">
-
-          <title>
-            Generating MovieVerse report…
-          </title>
-
-        </head>
-
-
-        <body
-          style="
-            margin:0;
-            min-height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:#070b12;
-            color:#f3f7fb;
-            font-family:
-              Arial,
-              sans-serif;
-          ">
-
-          <div
-            style="
-              text-align:center;
-            ">
-
-            <div
-              style="
-                font-size:24px;
-                font-weight:700;
-                margin-bottom:10px;
-              ">
-
-              MovieVerse
-
-            </div>
-
-
-            <div
-              style="
-                color:#9eacc0;
-              ">
-
-              Generating your report…
-
-            </div>
-
-          </div>
-
-        </body>
-
-      </html>
-    `);
-
-
-    pdfTab.document.close();
-
-
-    try {
-
-      const response =
-        await fetch(
-          MV.api.buildUrl(
-            path
-          ),
-          {
-            method:
-              "GET",
-
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            },
-
-            cache:
-              "no-store"
-          }
-        );
-
-
-      if (!response.ok) {
-
-        let data =
-          null;
-
-
-        try {
-
-          const contentType =
-            response.headers.get(
-              "content-type"
-            ) || "";
-
-
-          if (
-            contentType
-              .toLowerCase()
-              .includes("json")
-          ) {
-
-            data =
-              await response.json();
-          }
-          else {
-
-            data =
-              await response.text();
-          }
-
-        }
-        catch {
-
-          data =
-            null;
-        }
-
-
-        if (
-          response.status ===
-          401
-        ) {
-
-          MV.auth.clearToken();
-        }
-
-
-        const messages =
-          MV.api
-            .extractErrorMessages(
-              data,
-              "Could not generate report."
-            );
-
-
-        throw new MV.ApiError({
-          status:
-            response.status,
-
-          title:
-            "Report generation failed",
-
-          detail:
-            messages[0],
-
-          messages,
-
-          data,
-
-          url:
-            response.url
-        });
-      }
-
-
-      const blob =
-        await response.blob();
-
-
-      const pdfBlob =
-        new Blob(
-          [blob],
-          {
-            type:
-              "application/pdf"
-          }
-        );
-
-
-      const objectUrl =
-        URL.createObjectURL(
-          pdfBlob
-        );
-
-
-      pdfTab.location.href =
-        objectUrl;
-
-
-      setTimeout(
-        () => {
-
-          URL.revokeObjectURL(
-            objectUrl
-          );
-
-        },
-        60_000
-      );
-
-    }
-    catch (error) {
-
-      if (
-        pdfTab &&
-        !pdfTab.closed
-      ) {
-
-        pdfTab.close();
-      }
-
-
-      throw error;
-    }
+    MV.ui.toast(
+      "The selected person is invalid.",
+      "danger"
+    );
+
+    return;
   }
 
 
-
-  function open() {
-
-    if (
-      !MV.auth.isAuthenticated()
-    ) {
-
-      location.href =
-        MV.auth.loginUrl();
-
-      return;
-    }
+  const oldHtml =
+    button.innerHTML;
 
 
-    ensureModal();
-
-    renderHome();
-
-
-    const modalElement =
-      document.getElementById(
-        "mvReportModal"
-      );
+  button.disabled =
+    true;
 
 
-    bootstrap.Modal
-      .getOrCreateInstance(
-        modalElement
-      )
-      .show();
+  button.innerHTML = `
+
+    <span
+      class="
+        spinner-border
+        spinner-border-sm
+        me-2
+      ">
+    </span>
+
+    Opening Stripe…
+
+  `;
+
+
+  try {
+
+    await startCheckout({
+      reportType:
+        "Person",
+
+      personType:
+        String(
+          person.resultType
+        ),
+
+      personId:
+        person.id
+    });
+
   }
+  catch (error) {
 
-
-  function hideModal() {
-
-    const modalElement =
-      document.getElementById(
-        "mvReportModal"
-      );
-
-
-    if (!modalElement)
-      return;
-
-
-    bootstrap.Modal
-      .getInstance(
-        modalElement
-      )
-      ?.hide();
-  }
-
-
-
-  function bind() {
-
-    const button =
-      document.getElementById(
-        "mvOpenReport"
-      );
-
-
-    if (!button)
-      return;
-
+    MV.ui.showError(
+      error,
+      "Could not start payment."
+    );
 
 
     if (
-      button.dataset
-        .mvReportBound ===
-      "true"
+      document.body.contains(
+        button
+      )
     ) {
-      return;
+
+      button.disabled =
+        false;
+
+      button.innerHTML =
+        oldHtml;
+
     }
+  }
+}
 
 
-    button.dataset
-      .mvReportBound =
-      "true";
+async function startCheckout(
+  request
+) {
+
+  if (
+    !MV.auth.isAuthenticated()
+  ) {
+
+    location.href =
+      MV.auth.loginUrl();
+
+    return;
+  }
 
 
-    button.addEventListener(
-      "click",
-      open
+  const result =
+    await MV.api.post(
+      "report-payments/checkout",
+      request
+    );
+
+
+  if (
+    !result ||
+    !result.checkoutUrl
+  ) {
+
+    throw new Error(
+      "MovieVerse did not receive a Stripe Checkout URL."
     );
   }
 
 
-  return {
-    bind,
-    open
-  };
+
+  location.href =
+    result.checkoutUrl;
+}
+
+    function open() {
+
+        if (
+            !MV.auth.isAuthenticated()
+        ) {
+
+            location.href =
+                MV.auth.loginUrl();
+
+            return;
+        }
+
+
+        ensureModal();
+
+        renderHome();
+
+
+        const modalElement =
+            document.getElementById(
+                "mvReportModal"
+            );
+
+
+        bootstrap.Modal
+            .getOrCreateInstance(
+                modalElement
+            )
+            .show();
+    }
+
+
+    function hideModal() {
+
+        const modalElement =
+            document.getElementById(
+                "mvReportModal"
+            );
+
+
+        if (!modalElement)
+            return;
+
+
+        bootstrap.Modal
+            .getInstance(
+                modalElement
+            )
+            ?.hide();
+    }
+
+
+
+    function bind() {
+
+        const button =
+            document.getElementById(
+                "mvOpenReport"
+            );
+
+
+        if (!button)
+            return;
+
+
+
+        if (
+            button.dataset
+                .mvReportBound ===
+            "true"
+        ) {
+            return;
+        }
+
+
+        button.dataset
+            .mvReportBound =
+            "true";
+
+
+        button.addEventListener(
+            "click",
+            open
+        );
+    }
+
+
+    return {
+        bind,
+        open
+    };
 
 })();

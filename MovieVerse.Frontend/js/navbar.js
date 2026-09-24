@@ -263,8 +263,7 @@ MV.navbar = (() => {
                 aria-controls="mvSearchDropdown"
                 aria-expanded="false"
                 placeholder="
-                  Search movies, TV shows,
-                  actors, directors, writers…
+                  Search movies, TV shows, actors, directors, writers…
                 ">
 
 
@@ -298,11 +297,6 @@ MV.navbar = (() => {
       </nav>
     `;
 
-
-    /*
-     * LOGOUT
-     */
-
     document
       .getElementById("mvLogout")
       ?.addEventListener(
@@ -317,37 +311,19 @@ MV.navbar = (() => {
       );
 
 
-    /*
-     * SEARCH
-     */
 
     bindSearch(p);
 
-
-    /*
-     * LOGGED-IN USER FEATURES
-     */
 
     if (user) {
 
       refreshAvatar();
 
-      /*
-       * reports.js handles the report modal.
-       * Optional chaining prevents errors
-       * if reports.js has not loaded.
-       */
+
 
       MV.reports?.bind?.();
     }
   }
-
-
-  /*
-   * =========================================================
-   * SEARCH HISTORY
-   * =========================================================
-   */
 
 
   function searchHistoryKey() {
@@ -406,13 +382,6 @@ MV.navbar = (() => {
       )
     );
   }
-
-
-  /*
-   * =========================================================
-   * SEARCH DISCOVERY
-   * =========================================================
-   */
 
 
   function discovery(prefix) {
@@ -553,13 +522,6 @@ MV.navbar = (() => {
   }
 
 
-  /*
-   * =========================================================
-   * GLOBAL SEARCH
-   * =========================================================
-   */
-
-
   function bindSearch(prefix) {
 
     const input =
@@ -623,11 +585,6 @@ MV.navbar = (() => {
     };
 
 
-    /*
-     * Show discovery when focused
-     * and search is empty.
-     */
-
     input.addEventListener(
       "focus",
       () => {
@@ -641,10 +598,6 @@ MV.navbar = (() => {
       }
     );
 
-
-    /*
-     * SEARCH REQUEST
-     */
 
     const search =
       MV.ui.debounce(
@@ -756,11 +709,6 @@ MV.navbar = (() => {
       "input",
       search
     );
-
-
-    /*
-     * KEYBOARD NAVIGATION
-     */
 
     input.addEventListener(
       "keydown",
@@ -878,11 +826,6 @@ MV.navbar = (() => {
       }
     );
 
-
-    /*
-     * CLICK SEARCH RESULT
-     */
-
     dropdown.addEventListener(
       "click",
       event => {
@@ -921,11 +864,6 @@ MV.navbar = (() => {
       }
     );
 
-
-    /*
-     * CLICK OUTSIDE SEARCH
-     */
-
     document.addEventListener(
       "click",
       event => {
@@ -947,11 +885,6 @@ MV.navbar = (() => {
   }
 
 
-  /*
-   * =========================================================
-   * SEARCH RESULTS
-   * =========================================================
-   */
 
 
   function renderResults(
@@ -1188,11 +1121,7 @@ MV.navbar = (() => {
   }
 
 
-  /*
-   * =========================================================
-   * SEARCH RESULT URL
-   * =========================================================
-   */
+
 
 
   function resultHref(
@@ -1245,9 +1174,6 @@ MV.navbar = (() => {
   }
 
 
-  /*
-   * Render navbar automatically.
-   */
 
   document.addEventListener(
     "DOMContentLoaded",
@@ -1261,13 +1187,6 @@ MV.navbar = (() => {
   };
 
 })();
-
-
-/*
- * =========================================================
- * PROFILE AVATAR
- * =========================================================
- */
 
 
 async function refreshAvatar() {

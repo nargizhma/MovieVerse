@@ -131,7 +131,7 @@ MV.filmChat = (() => {
               class="form-control"
               rows="2"
               maxlength="500"
-              placeholder="Ask for a movie or TV recommendation…"
+              placeholder="Ask for a movie or TV show recommendation…"
               aria-label="Message MovieVerse AI"></textarea>
 
             <button
@@ -257,7 +257,7 @@ MV.filmChat = (() => {
     if (!history.length) {
       appendMessage(
         "model",
-        "Tell me what you feel like watching. For example: “Recommend a smart sci-fi movie like Interstellar, but shorter.”"
+        "Tell me what you feel like watching. For example: “Recommend a sci-fi movie like Interstellar, but shorter.”"
       );
 
       return;

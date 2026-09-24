@@ -365,33 +365,39 @@ img[data-mv-placeholder-kind] { object-fit: cover; object-position: center; }
 .mv-report-modal {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
 
+.mv-report-modal .btn-close {
+  filter: invert(1);
+}
+
+
 .mv-report-option {
+  width: 100%;
   height: 100%;
 
-  padding: 24px;
+  padding: 1.5rem;
 
   text-align: left;
 
-  background:
-    rgba(255, 255, 255, 0.025);
+  color: var(--text-primary);
 
-  color:
-    var(--text);
+  background:
+    rgba(255, 255, 255, .025);
 
   border:
     1px solid var(--border);
 
-  border-radius: 16px;
+  border-radius:
+    var(--radius);
 
   transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease;
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease;
 }
 
 
@@ -400,34 +406,31 @@ img[data-mv-placeholder-kind] { object-fit: cover; object-position: center; }
     translateY(-2px);
 
   border-color:
-    var(--primary);
+    var(--accent);
 
   background:
-    rgba(59, 130, 246, 0.08);
+    var(--accent-soft);
 }
 
 
 .mv-report-option:disabled {
-  cursor:
-    wait;
-
-  opacity:
-    0.75;
+  cursor: wait;
+  opacity: .7;
 }
 
 
 .mv-report-option h5 {
-  margin-bottom: 10px;
+  margin-bottom: .7rem;
 
   color:
-    var(--text);
+    var(--text-primary);
 }
 
 
 .mv-report-option p {
-  min-height: 92px;
+  min-height: 100px;
 
-  margin-bottom: 20px;
+  margin-bottom: 1.2rem;
 
   color:
     var(--text-secondary);
@@ -441,30 +444,467 @@ img[data-mv-placeholder-kind] { object-fit: cover; object-position: center; }
   width: 48px;
   height: 48px;
 
-  display: flex;
+  display: grid;
+  place-items: center;
 
-  align-items: center;
-  justify-content: center;
+  margin-bottom: 1rem;
 
-  margin-bottom: 18px;
-
-  border-radius: 12px;
+  border-radius: .75rem;
 
   background:
-    rgba(59, 130, 246, 0.12);
+    var(--accent-soft);
 
   color:
-    var(--primary);
+    var(--accent);
 
   font-size:
-    1.25rem;
+    1.2rem;
 }
 
 
 .mv-report-action {
   color:
-    var(--primary);
+    var(--accent-hover);
 
   font-weight:
-    600;
+    700;
+}
+
+
+.mv-report-info {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+
+  padding: .8rem 1rem;
+
+  color:
+    var(--text-secondary);
+
+  background:
+    var(--bg-secondary);
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    var(--radius-sm);
+
+  font-size:
+    .85rem;
+}
+
+
+.mv-report-info i {
+  color:
+    var(--accent);
+}
+
+
+/* =========================================================
+   PERSON SEARCH
+   ========================================================= */
+
+.mv-report-search-box {
+  position: relative;
+}
+
+
+.mv-report-search-box > i {
+  position: absolute;
+
+  left: 1rem;
+  top: 50%;
+
+  z-index: 2;
+
+  transform:
+    translateY(-50%);
+
+  color:
+    var(--text-muted);
+
+  pointer-events:
+    none;
+}
+
+
+.mv-report-search-input {
+  height: 48px;
+
+  padding-left:
+    2.8rem;
+
+  background:
+    var(--bg-secondary);
+
+  color:
+    var(--text-primary);
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    var(--radius-sm);
+}
+
+
+.mv-report-search-input:focus {
+  background:
+    var(--bg-secondary);
+
+  color:
+    var(--text-primary);
+
+  border-color:
+    var(--accent);
+
+  box-shadow:
+    0 0 0 .2rem
+    rgba(22, 184, 212, .12);
+}
+
+
+.mv-report-search-input::placeholder {
+  color:
+    var(--text-muted);
+}
+
+
+.mv-report-search-results {
+  min-height: 170px;
+}
+
+
+.mv-report-search-empty,
+.mv-report-search-loading {
+  min-height: 160px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: .8rem;
+
+  padding: 1.5rem;
+
+  text-align: center;
+
+  color:
+    var(--text-muted);
+
+  border:
+    1px dashed var(--border);
+
+  border-radius:
+    var(--radius);
+}
+
+
+.mv-report-search-empty i {
+  font-size:
+    1.6rem;
+
+  color:
+    var(--text-muted);
+}
+
+
+.mv-report-search-loading {
+  flex-direction: row;
+
+  color:
+    var(--text-secondary);
+}
+
+
+.mv-report-result-count {
+  color:
+    var(--text-muted);
+
+  font-size:
+    .8rem;
+}
+
+
+/* =========================================================
+   PERSON SEARCH RESULT
+   ========================================================= */
+
+.mv-report-person-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: .55rem;
+
+  max-height: 350px;
+
+  overflow-y: auto;
+
+  padding-right: .2rem;
+}
+
+
+.mv-report-person-result {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    58px 1fr auto;
+
+  align-items: center;
+
+  gap: .85rem;
+
+  padding: .7rem;
+
+  text-align: left;
+
+  color:
+    var(--text-primary);
+
+  background:
+    var(--bg-secondary);
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    var(--radius-sm);
+
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    transform .15s ease;
+}
+
+
+.mv-report-person-result:hover {
+  transform:
+    translateX(2px);
+
+  background:
+    var(--surface-hover);
+
+  border-color:
+    var(--accent);
+}
+
+
+.mv-report-person-result img {
+  width: 58px;
+  height: 68px;
+
+  object-fit: cover;
+  object-position: center;
+
+  border-radius: .55rem;
+
+  background:
+    var(--surface);
+}
+
+
+.mv-report-person-info {
+  min-width: 0;
+}
+
+
+.mv-report-person-info strong {
+  display: block;
+
+  overflow: hidden;
+
+  color:
+    var(--text-primary);
+
+  text-overflow:
+    ellipsis;
+
+  white-space: nowrap;
+}
+
+
+.mv-report-person-info span {
+  display: block;
+
+  margin-top: .2rem;
+
+  color:
+    var(--text-secondary);
+
+  font-size:
+    .83rem;
+}
+
+
+.mv-report-person-arrow {
+  padding-right: .4rem;
+
+  color:
+    var(--text-muted);
+}
+
+
+/* =========================================================
+   SELECTED PERSON
+   ========================================================= */
+
+.mv-report-selected-person {
+  padding: 1.2rem;
+
+  background:
+    var(--bg-secondary);
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    var(--radius);
+}
+
+
+.mv-report-selected-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 1rem;
+}
+
+
+.mv-report-selected-header img {
+  width: 90px;
+  height: 110px;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+  object-position: center;
+
+  background:
+    var(--surface);
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    .75rem;
+}
+
+
+.mv-report-person-type {
+  background:
+    var(--accent-soft);
+
+  color:
+    var(--accent-hover);
+
+  border:
+    1px solid
+    rgba(22, 184, 212, .25);
+}
+
+
+.mv-report-includes {
+  padding-top: 1rem;
+
+  border-top:
+    1px solid var(--border);
+}
+
+
+.mv-report-includes h6 {
+  margin-bottom: .85rem;
+
+  color:
+    var(--text-primary);
+}
+
+
+.mv-report-includes-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: .65rem;
+}
+
+
+.mv-report-includes-grid > div {
+  display: flex;
+
+  align-items: center;
+
+  gap: .55rem;
+
+  padding: .7rem;
+
+  color:
+    var(--text-secondary);
+
+  background:
+    var(--surface);
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    var(--radius-sm);
+
+  font-size:
+    .85rem;
+}
+
+
+.mv-report-includes-grid i {
+  color:
+    var(--accent);
+}
+
+
+.mv-report-generating {
+  min-height: 150px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: .7rem;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 576px) {
+
+  .mv-report-option p {
+    min-height: auto;
+  }
+
+
+  .mv-report-includes-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .mv-report-selected-header {
+    align-items:
+      flex-start;
+  }
+
+
+  .mv-report-selected-header img {
+    width: 74px;
+    height: 90px;
+  }
+
 }

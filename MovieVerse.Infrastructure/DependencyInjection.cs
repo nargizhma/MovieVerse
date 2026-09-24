@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MovieVerse.Abstractions.AI;
+using MovieVerse.Abstractions.Email;
 using MovieVerse.Abstractions.Identity;
 using MovieVerse.Abstractions.Media;
 using MovieVerse.Abstractions.Persistence;
 using MovieVerse.Data;
 using MovieVerse.Infrastructure.AI;
+using MovieVerse.Infrastructure.Email;
 using MovieVerse.Infrastructure.Identity;
 using MovieVerse.Infrastructure.Media;
 using MovieVerse.Infrastructure.Persistence;
@@ -35,7 +37,10 @@ public static class DependencyInjection
                             "DefaultConnection")));
 
         services
-            .AddIdentityCore<AppUser>()
+            .AddIdentityCore<AppUser>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+            })
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
@@ -73,7 +78,21 @@ public static class DependencyInjection
         services.AddSingleton<IFileStorage>(
             new LocalFileStorage(
                 webRootPath));
+        services.Configure<EmailSettings>(
+            configuration.GetSection(
+                EmailSettings.SectionName));
 
+        services.Configure<
+            DataProtectionTokenProviderOptions>(
+            options =>
+            {
+                options.TokenLifespan =
+                    TimeSpan.FromMinutes(30);
+            });
+
+        services.AddScoped<
+            IEmailService,
+            SmtpEmailService>();
         return services;
     }
 }

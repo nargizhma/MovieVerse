@@ -114,32 +114,52 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           );
 
-        if (!data?.token) {
-          throw new MV.ApiError({
-            status: 0,
-            title:
-              "Registration failed",
-            detail:
-              "The server did not return an authentication token."
-          });
-        }
+        if (!data?.userId) {
+  throw new MV.ApiError({
+    status: 0,
+    title: "Registration failed",
+    detail:
+      "The server did not return the new user ID."
+  });
+}
 
-        MV.auth.setToken(
-          data.token
-        );
+MV.ui.setFlash(
+  "Account created. Please verify your email.",
+  "success"
+);
 
-        MV.ui.setFlash(
-          "Account created",
-          "success"
-        );
+const params =
+  new URLSearchParams();
 
-        location.href =
-          safeReturn(
-            new URLSearchParams(
-              location.search
-            ).get("returnUrl")
-          ) ||
-          "index.html";
+params.set(
+  "userId",
+  data.userId
+);
+
+params.set(
+  "email",
+  form.elements.email
+    .value
+    .trim()
+);
+
+const returnUrl =
+  safeReturn(
+    new URLSearchParams(
+      location.search
+    ).get("returnUrl")
+  );
+
+if (returnUrl) {
+  params.set(
+    "returnUrl",
+    returnUrl
+  );
+}
+
+location.href =
+  `verify-email.html?${params.toString()}`;
+
       } catch (err) {
         MV.ui.showInlineError(
           errorBox,

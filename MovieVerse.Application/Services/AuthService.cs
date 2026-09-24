@@ -1,4 +1,5 @@
-﻿using MovieVerse.Abstractions.Identity;
+﻿using MovieVerse.Abstractions.Email;
+using MovieVerse.Abstractions.Identity;
 using MovieVerse.Abstractions.Persistence;
 using MovieVerse.Dtos.Auth;
 using MovieVerse.Exceptions;
@@ -12,10 +13,11 @@ public class AuthService(
     IIdentityService identityService,
     IUserProfileRepository profileRepository,
     IUnitOfWork unitOfWork,
-    IJwtService jwtService)
+    IJwtService jwtService,
+    IEmailService emailService)
     : IAuthService
 {
-    public async Task<AuthResponseDto>
+    public async Task<RegisterResponseDto>
         RegisterAsync(RegisterDto dto)
     {
         var existingEmail =
@@ -24,8 +26,10 @@ public class AuthService(
                     dto.Email);
 
         if (existingEmail is not null)
+        {
             throw new AlreadyExistsException(
                 "A user with this email already exists.");
+        }
 
         var existingUserName =
             await identityService
@@ -33,8 +37,10 @@ public class AuthService(
                     dto.UserName);
 
         if (existingUserName is not null)
+        {
             throw new AlreadyExistsException(
                 "This username is already taken.");
+        }
 
         await using var transaction =
             await unitOfWork
@@ -43,10 +49,11 @@ public class AuthService(
         try
         {
             var createResult =
-                await identityService.CreateAsync(
-                    dto.Email,
-                    dto.UserName,
-                    dto.Password);
+                await identityService
+                    .CreateAsync(
+                        dto.Email,
+                        dto.UserName,
+                        dto.Password);
 
             if (!createResult.Succeeded ||
                 !createResult.UserId.HasValue)
@@ -87,21 +94,39 @@ public class AuthService(
             await unitOfWork
                 .SaveChangesAsync();
 
-            var token =
-                await jwtService
-                    .CreateTokenAsync(
+            var confirmationToken =
+                await identityService
+                    .GenerateEmailConfirmationTokenAsync(
                         userId);
+
+            if (string.IsNullOrWhiteSpace(
+                    confirmationToken))
+            {
+                throw new BadRequestException(
+                    "Could not create email verification token.");
+            }
+
+            await emailService
+                .SendEmailConfirmationAsync(
+                    dto.Email,
+                    userId,
+                    confirmationToken);
 
             await transaction.CommitAsync();
 
-            return new AuthResponseDto
+            return new RegisterResponseDto
             {
-                Token = token
+                UserId = userId,
+                Email = dto.Email,
+                RequiresEmailConfirmation =
+                    true
             };
         }
         catch
         {
-            await transaction.RollbackAsync();
+            await transaction
+                .RollbackAsync();
+
             throw;
         }
     }
@@ -115,8 +140,10 @@ public class AuthService(
                     dto.Email);
 
         if (user is null)
+        {
             throw new UnauthorizedException(
                 "Invalid email or password.");
+        }
 
         var valid =
             await identityService
@@ -125,8 +152,16 @@ public class AuthService(
                     dto.Password);
 
         if (!valid)
+        {
             throw new UnauthorizedException(
                 "Invalid email or password.");
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            throw new UnauthorizedException(
+                "Please verify your email before logging in.");
+        }
 
         var token =
             await jwtService
@@ -137,5 +172,69 @@ public class AuthService(
         {
             Token = token
         };
+    }
+
+    public async Task ConfirmEmailAsync(
+        Guid userId,
+        string token)
+    {
+        var user =
+            await identityService
+                .FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            throw new NotFoundException(
+                "User was not found.");
+        }
+
+        if (user.EmailConfirmed)
+            return;
+
+        var result =
+            await identityService
+                .ConfirmEmailAsync(
+                    userId,
+                    token);
+
+        if (!result.Succeeded)
+        {
+            throw new BadRequestException(
+                "The verification link is invalid or has expired.");
+        }
+    }
+
+    public async Task
+        ResendConfirmationEmailAsync(
+            string email)
+    {
+        var user =
+            await identityService
+                .FindByEmailAsync(email);
+
+        // Intentionally do nothing so this
+        // endpoint doesn't reveal registered emails.
+        if (user is null ||
+            user.EmailConfirmed)
+        {
+            return;
+        }
+
+        var confirmationToken =
+            await identityService
+                .GenerateEmailConfirmationTokenAsync(
+                    user.Id);
+
+        if (string.IsNullOrWhiteSpace(
+                confirmationToken))
+        {
+            return;
+        }
+
+        await emailService
+            .SendEmailConfirmationAsync(
+                user.Email,
+                user.Id,
+                confirmationToken);
     }
 }

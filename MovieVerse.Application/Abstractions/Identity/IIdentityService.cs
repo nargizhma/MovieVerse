@@ -41,6 +41,14 @@ public interface IIdentityService
 
     Task<int> CountUsersInRoleAsync(
         string role);
+    Task<string?>
+        GenerateEmailConfirmationTokenAsync(
+            Guid userId);
+
+    Task<IdentityOperationResult>
+        ConfirmEmailAsync(
+            Guid userId,
+            string token);
 }
 
 public class IdentityUserInfo
@@ -61,6 +69,7 @@ public class IdentityUserInfo
 
     public List<string> Roles { get; set; }
         = [];
+    public bool EmailConfirmed { get; set; }
 }
 
 public class IdentityOperationResult

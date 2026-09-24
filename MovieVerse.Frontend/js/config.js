@@ -2,6 +2,8 @@ window.MV = window.MV || {};
 MV.config = Object.freeze({
   API_BASE_URL: "http://localhost:5033/api",
   BACKEND_ORIGIN: "http://localhost:5033",
+  EMAIL_VERIFICATION_HUB_URL:
+  "http://localhost:5033/hubs/email-verification",
   TOKEN_KEY: "movieverse_jwt",
   FLASH_KEY: "movieverse_flash",
 

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
+
+  <meta
+    name="theme-color"
+    content="#070b12">
+
+  <title>Verify Email • MovieVerse</title>
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="assets/images/logo-square.png">
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+
+  <link
+    href="css/variables.css"
+    rel="stylesheet">
+
+  <link
+    href="css/main.css"
+    rel="stylesheet">
+
+  <link
+    href="css/components.css"
+    rel="stylesheet">
+
+  <link
+    href="css/pages.css"
+    rel="stylesheet">
+
+  <link
+    href="css/responsive.css"
+    rel="stylesheet">
+</head>
+
+<body>
+
+<main class="mv-auth-page">
+
+  <section class="mv-auth-brand">
+    <a href="index.html">
+      <img
+        src="assets/images/logo-horizontal.png"
+        alt="MovieVerse">
+    </a>
+
+    <h1>One last step.</h1>
+
+    <p class="text-secondary">
+      Verify your email address to activate
+      your MovieVerse account.
+    </p>
+  </section>
+
+  <section class="mv-auth-form-shell">
+
+    <div class="mv-auth-card">
+
+      <div class="mv-kicker">
+        Email verification
+      </div>
+
+      <h2 class="mb-3">
+        Check your inbox
+      </h2>
+
+      <p
+        id="verificationMessage"
+        class="text-secondary">
+        Waiting for email verification…
+      </p>
+
+      <div id="verificationError"></div>
+
+      <button
+        id="resendButton"
+        class="btn btn-outline-primary w-100 mb-2"
+        type="button">
+        Resend verification email
+      </button>
+
+      <a
+        id="loginLink"
+        href="login.html"
+        class="btn btn-primary w-100 d-none">
+        Continue to login
+      </a>
+
+    </div>
+
+  </section>
+
+</main>
+
+<script src="js/config.js"></script>
+
+<script src="js/api.js"></script>
+
+<script src="js/auth.js"></script>
+
+<script src="js/ui.js"></script>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@10/dist/browser/signalr.min.js">
+</script>
+
+<script src="js/pages/verify-email.js"></script>
+
+</body>
+</html>

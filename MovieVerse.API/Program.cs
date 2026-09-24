@@ -8,6 +8,7 @@ using MovieVerse.Abstractions.Media;
 using MovieVerse.Application;
 using MovieVerse.Data.Seed;
 using MovieVerse.Handlers;
+using MovieVerse.Hubs;
 using MovieVerse.Infrastructure;
 using MovieVerse.Profiles;
 using MovieVerse.Services;
@@ -59,7 +60,7 @@ builder.Services
     });
 
 builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddSignalR();
 
 builder.Services.AddApplication();
 
@@ -102,7 +103,8 @@ builder.Services.AddCors(options =>
                     "http://localhost:5500",
                     "http://127.0.0.1:5500")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
@@ -232,5 +234,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<EmailVerificationHub>(
+    "/hubs/email-verification");
 
 app.Run();

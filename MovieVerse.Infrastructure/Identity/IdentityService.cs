@@ -277,7 +277,9 @@ public class IdentityService(
             Roles =
                 roles
                     .OrderBy(x => x)
-                    .ToList()
+                    .ToList(),
+            EmailConfirmed =
+            user.EmailConfirmed
         };
     }
 
@@ -302,5 +304,51 @@ public class IdentityService(
                         x.Description)
                     .ToList()
         };
+    }
+    public async Task<string?>
+        GenerateEmailConfirmationTokenAsync(
+            Guid userId)
+    {
+        var user =
+            await userManager.FindByIdAsync(
+                userId.ToString());
+
+        if (user is null)
+            return null;
+
+        return await userManager
+            .GenerateEmailConfirmationTokenAsync(
+                user);
+    }
+    public async Task<IdentityOperationResult>
+        ConfirmEmailAsync(
+            Guid userId,
+            string token)
+    {
+        var user =
+            await userManager.FindByIdAsync(
+                userId.ToString());
+
+        if (user is null)
+        {
+            return new IdentityOperationResult
+            {
+                Succeeded = false,
+                Errors =
+                [
+                    "User was not found."
+                ]
+            };
+        }
+
+        var result =
+            await userManager
+                .ConfirmEmailAsync(
+                    user,
+                    token);
+
+        return FromIdentityResult(
+            result,
+            user.Id);
     }
 }

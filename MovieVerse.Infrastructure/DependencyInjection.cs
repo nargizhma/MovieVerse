@@ -7,18 +7,21 @@ using MovieVerse.Abstractions.Email;
 using MovieVerse.Abstractions.Identity;
 using MovieVerse.Abstractions.Media;
 using MovieVerse.Abstractions.Persistence;
+using MovieVerse.Abstractions.Reports;
 using MovieVerse.Data;
 using MovieVerse.Infrastructure.AI;
 using MovieVerse.Infrastructure.Email;
 using MovieVerse.Infrastructure.Identity;
 using MovieVerse.Infrastructure.Media;
 using MovieVerse.Infrastructure.Persistence;
+using MovieVerse.Infrastructure.Reports;
 using MovieVerse.Models;
 using MovieVerse.Repositories;
 using MovieVerse.Repositories.Interfaces;
 using MovieVerse.Services;
 using MovieVerse.Services.Interfaces;
 using MovieVerse.Settings;
+using QuestPDF.Infrastructure;
 
 namespace MovieVerse.Infrastructure;
 
@@ -37,17 +40,23 @@ public static class DependencyInjection
                             "DefaultConnection")));
 
         services
-            .AddIdentityCore<AppUser>(options =>
-            {
-                options.SignIn.RequireConfirmedEmail = true;
-            })
-            .AddRoles<IdentityRole<Guid>>()
-            .AddEntityFrameworkStores<AppDbContext>()
+            .AddIdentityCore<AppUser>(
+                options =>
+                {
+                    options.SignIn
+                        .RequireConfirmedEmail =
+                        true;
+                })
+            .AddRoles<
+                IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<
+                AppDbContext>()
             .AddDefaultTokenProviders();
 
         services.Configure<JwtSettings>(
             configuration.GetSection(
                 JwtSettings.SectionName));
+
         services.Configure<GeminiSettings>(
             configuration.GetSection(
                 GeminiSettings.SectionName));
@@ -55,6 +64,7 @@ public static class DependencyInjection
         services.AddHttpClient<
             IFilmAiClient,
             GeminiFilmAiClient>();
+
         services.AddScoped<
             IJwtService,
             JwtService>();
@@ -64,8 +74,11 @@ public static class DependencyInjection
             IdentityService>();
 
         services.AddScoped(
-            typeof(IGenericRepository<>),
-            typeof(GenericRepository<>));
+            typeof(
+                IGenericRepository<>),
+            typeof(
+                GenericRepository<>));
+
 
         services.AddScoped<
             IUserProfileRepository,
@@ -78,6 +91,7 @@ public static class DependencyInjection
         services.AddSingleton<IFileStorage>(
             new LocalFileStorage(
                 webRootPath));
+
         services.Configure<EmailSettings>(
             configuration.GetSection(
                 EmailSettings.SectionName));
@@ -87,12 +101,23 @@ public static class DependencyInjection
             options =>
             {
                 options.TokenLifespan =
-                    TimeSpan.FromMinutes(30);
+                    TimeSpan
+                        .FromMinutes(30);
             });
 
         services.AddScoped<
             IEmailService,
             SmtpEmailService>();
+
+        QuestPDF.Settings.License =
+            LicenseType.Community;
+
+
+        services.AddSingleton<
+            IPdfReportGenerator,
+            QuestPdfReportGenerator>();
+
+
         return services;
     }
 }

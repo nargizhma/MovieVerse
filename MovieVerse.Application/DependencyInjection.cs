@@ -10,22 +10,50 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(
         this IServiceCollection services)
     {
-        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<
+            IAuthService,
+            AuthService>();
+
         services.AddScoped<
             IFilmChatService,
             FilmChatService>();
 
-        services.AddScoped<IMovieService, MovieService>();
-        services.AddScoped<ITVShowService, TVShowService>();
 
-        services.AddScoped<IActorService, ActorService>();
-        services.AddScoped<IDirectorService, DirectorService>();
-        services.AddScoped<IWriterService, WriterService>();
+        services.AddScoped<
+            IMovieService,
+            MovieService>();
 
-        services.AddScoped<IGenreService, GenreService>();
+        services.AddScoped<
+            ITVShowService,
+            TVShowService>();
 
-        services.AddScoped<ISeasonService, SeasonService>();
-        services.AddScoped<IEpisodeService, EpisodeService>();
+
+        services.AddScoped<
+            IActorService,
+            ActorService>();
+
+        services.AddScoped<
+            IDirectorService,
+            DirectorService>();
+
+        services.AddScoped<
+            IWriterService,
+            WriterService>();
+
+
+        services.AddScoped<
+            IGenreService,
+            GenreService>();
+
+
+        services.AddScoped<
+            ISeasonService,
+            SeasonService>();
+
+        services.AddScoped<
+            IEpisodeService,
+            EpisodeService>();
+
 
         services.AddScoped<
             IMovieReviewService,
@@ -75,8 +103,13 @@ public static class DependencyInjection
             IAdminReviewService,
             AdminReviewService>();
 
+        services.AddScoped<
+            IReportService,
+            ReportService>();
+
         services.AddValidatorsFromAssembly(
-            typeof(DependencyInjection).Assembly);
+            typeof(DependencyInjection)
+                .Assembly);
 
         return services;
     }
